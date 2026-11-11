@@ -45,7 +45,8 @@ h1 .flake{ color:var(--red); }
 .save .mini{ padding:7px 10px; background:var(--panel); }
 .tabs{ display:flex; gap:4px; padding:4px; background:var(--panel); border-radius:999px; }
 .tab{ padding:8px 18px; border:0; border-radius:999px; background:transparent; font-weight:700; font-size:15px; color:var(--muted); }
-.tab[aria-selected="true"]{ background:var(--spruce); color:#fff; }
+.tab[aria-selected="true"], .tab[aria-pressed="true"]{ background:var(--spruce); color:#fff; }
+.lang .tab{ padding:6px 11px; font-size:13px; }
 
 .models{ display:flex; gap:8px; overflow-x:auto; padding:2px 2px 10px; margin-bottom:6px; }
 .model{ flex:0 0 auto; display:flex; flex-direction:column; align-items:center; gap:2px; min-width:92px; padding:10px 10px 8px; border:2px solid transparent; border-radius:14px; background:var(--panel); }
@@ -84,6 +85,7 @@ input[type=range]{ width:100%; accent-color:var(--spruce); }
 input[type=text]{ width:100%; padding:8px 10px; border-radius:10px; border:2px solid var(--line); background:var(--bg); }
 .actions{ display:grid; gap:6px; }
 .act{ padding:9px 10px; border-radius:12px; border:0; background:var(--chip); text-align:left; font-weight:500; }
+.actions .row .act{ padding:9px 6px; font-size:14px; text-align:center; white-space:nowrap; }
 .act:disabled{ opacity:.45; cursor:default; }
 .act.danger{ color:var(--red); }
 .row{ display:grid; grid-template-columns:1fr 1fr; gap:6px; }
@@ -96,6 +98,7 @@ input[type=text]{ width:100%; padding:8px 10px; border-radius:10px; border:2px s
 .field{ margin-top:12px; }
 .print{ margin-top:12px; width:100%; padding:13px; border:0; border-radius:14px; background:var(--red); color:#fff; font-weight:700; font-size:17px; }
 .note{ font-size:13px; color:var(--muted); margin:8px 0 0; }
+.note.warn{ color:var(--red); font-weight:500; }
 .howto{ margin:12px 0 0; padding-left:20px; font-size:14px; }
 .howto li{ margin-bottom:4px; }
 
@@ -110,6 +113,7 @@ input[type=text]{ width:100%; padding:8px 10px; border-radius:10px; border:2px s
   body{ background:#fff; }
   #printArea{ display:block; }
   #printArea img{ display:block; width:210mm; height:297mm; page-break-after:always; break-after:page; }
+  #printArea img:last-child{ page-break-after:auto; break-after:auto; }
 }
 
 @media (max-width:1150px){
@@ -131,125 +135,134 @@ input[type=text]{ width:100%; padding:8px 10px; border-radius:10px; border:2px s
 <body>
 <div class="app">
   <header>
-    <h1><span class="flake">❄&#xFE0E;</span> Бумажная мастерская</h1>
+    <h1><span class="flake">❄&#xFE0E;</span> <span data-i18n="appTitle">Бумажная мастерская</span></h1>
     <div class="hdr-right">
+      <div class="tabs lang" role="group" aria-label="Language / Язык">
+        <button class="tab" id="langRu" aria-pressed="true">RU</button>
+        <button class="tab" id="langEn" aria-pressed="false">EN</button>
+      </div>
       <div class="tabs" role="tablist">
-        <button class="tab" role="tab" id="tabShape" aria-selected="true">Фигурка</button>
-        <button class="tab" role="tab" id="tabBuild" aria-selected="false">Конструктор</button>
+        <button class="tab" role="tab" id="tabShape" aria-selected="true" data-i18n="tabShape">Фигурка</button>
+        <button class="tab" role="tab" id="tabBuild" aria-selected="false" data-i18n="tabBuild">Конструктор</button>
       </div>
       <div class="save">
-        <span class="note" id="saveStatus" style="margin:0">Работа сохраняется сама</span>
-        <button class="mini" id="dlFile">💾 Скачать файл</button>
-        <label class="mini" style="cursor:pointer">📂 Открыть файл<input type="file" id="openFile" accept=".json,application/json" hidden></label>
+        <span class="note" id="saveStatus" style="margin:0" data-i18n="saveIdle">Работа сохраняется сама</span>
+        <button class="mini" id="dlFile" data-i18n="dlFile">💾 Скачать файл</button>
+        <label class="mini" style="cursor:pointer"><span data-i18n="openFile">📂 Открыть файл</span><input type="file" id="openFile" accept=".json,application/json" hidden></label>
       </div>
     </div>
   </header>
 
-  <nav class="models" id="models" aria-label="Фигуры"></nav>
-  <nav class="models" id="adds" aria-label="Детали" hidden>
-    <div class="lead"><b>Добавить деталь</b>появится в центре сцены</div>
+  <nav class="models" id="models" aria-label="Фигуры" data-i18n-aria="modelsAria"></nav>
+  <nav class="models" id="adds" aria-label="Детали" data-i18n-aria="addsAria" hidden>
+    <div class="lead"><b data-i18n="addLeadTitle">Добавить деталь</b><span data-i18n="addLeadSub">появится в центре сцены</span></div>
   </nav>
 
   <main class="work">
     <section class="panel left">
       <div>
-        <h2>Чем работаем</h2>
+        <h2 data-i18n="toolsTitle">Чем работаем</h2>
         <div class="tools" id="tools">
-          <button class="tool" data-tool="move" aria-pressed="false" hidden style="grid-column:1/-1"><span>✥</span>Двигать детали</button>
-          <button class="tool" data-tool="brush" aria-pressed="true"><span>🖌️</span>Кисть</button>
-          <button class="tool" data-tool="fill" aria-pressed="false"><span>🪣</span>Заливка</button>
-          <button class="tool" data-tool="stamp" aria-pressed="false"><span>⭐</span>Штамп</button>
-          <button class="tool" data-tool="eraser" aria-pressed="false"><span>🧽</span>Ластик</button>
-          <button class="tool" data-tool="rotate" aria-pressed="false" style="grid-column:1/-1"><span>✋</span>Только крутить</button>
+          <button class="tool" data-tool="move" aria-pressed="false" hidden style="grid-column:1/-1" title="Переместить (G)" data-i18n-title="moveTitle"><span>✥</span><span data-i18n="toolMove">Двигать детали</span></button>
+          <button class="tool" data-tool="rotPart" aria-pressed="false" hidden title="Поворот (R)" data-i18n-title="rotTitle"><span>🔄</span><span data-i18n="toolRot">Поворот</span></button>
+          <button class="tool" data-tool="scalePart" aria-pressed="false" hidden title="Масштаб (S)" data-i18n-title="scaleTitle"><span>⤢</span><span data-i18n="toolScale">Масштаб</span></button>
+          <button class="tool" data-tool="brush" aria-pressed="true"><span>🖌️</span><span data-i18n="toolBrush">Кисть</span></button>
+          <button class="tool" data-tool="fill" aria-pressed="false"><span>🪣</span><span data-i18n="toolFill">Заливка</span></button>
+          <button class="tool" data-tool="stamp" aria-pressed="false"><span>⭐</span><span data-i18n="toolStamp">Штамп</span></button>
+          <button class="tool" data-tool="eraser" aria-pressed="false"><span>🧽</span><span data-i18n="toolEraser">Ластик</span></button>
+          <button class="tool" data-tool="rotate" aria-pressed="false" style="grid-column:1/-1"><span>✋</span><span data-i18n="toolOrbit">Только крутить</span></button>
         </div>
       </div>
       <div class="sect ctl" id="partCtl" hidden>
-        <div class="lbl"><span>Выбрана деталь</span><span id="partType"></span></div>
-        <input type="text" id="partName" maxlength="20" aria-label="Название детали">
-        <div class="lbl" style="margin-top:10px"><span>Ширина</span><span id="sxOut"></span></div>
-        <input type="range" id="sx" min="0.2" max="3" step="0.05" aria-label="Ширина">
-        <div class="lbl"><span>Высота</span><span id="syOut"></span></div>
-        <input type="range" id="sy" min="0.2" max="3" step="0.05" aria-label="Высота">
-        <div class="lbl"><span>Глубина</span><span id="szOut"></span></div>
-        <input type="range" id="sz" min="0.2" max="3" step="0.05" aria-label="Глубина">
-        <div class="lbl"><span>Поднять / опустить</span><span id="pyOut"></span></div>
-        <input type="range" id="py" min="-1" max="4" step="0.05" aria-label="Высота над полом">
-        <div class="lbl" style="margin-top:8px">Повернуть на 15°</div>
+        <div class="lbl"><span data-i18n="selectedPart">Выбрана деталь</span><span id="partType"></span></div>
+        <input type="text" id="partName" maxlength="20" aria-label="Название детали" data-i18n-aria="partNameAria">
+        <div class="lbl" style="margin-top:10px"><span data-i18n="width">Ширина</span><span id="sxOut"></span></div>
+        <input type="range" id="sx" min="0.2" max="3" step="0.05" aria-label="Ширина" data-i18n-aria="width">
+        <div class="lbl"><span data-i18n="height">Высота</span><span id="syOut"></span></div>
+        <input type="range" id="sy" min="0.2" max="3" step="0.05" aria-label="Высота" data-i18n-aria="height">
+        <div class="lbl"><span data-i18n="depth">Глубина</span><span id="szOut"></span></div>
+        <input type="range" id="sz" min="0.2" max="3" step="0.05" aria-label="Глубина" data-i18n-aria="depth">
+        <div class="lbl"><span data-i18n="elev">Поднять / опустить</span><span id="pyOut"></span></div>
+        <input type="range" id="py" min="-1" max="4" step="0.05" aria-label="Высота над полом" data-i18n-aria="elevAria">
+        <div class="lbl" style="margin-top:8px" data-i18n="rot15">Повернуть на 15°</div>
         <div class="row3">
-          <button class="mini" data-rot="y">↻ вокруг</button>
-          <button class="mini" data-rot="x">↕ вперёд</button>
-          <button class="mini" data-rot="z">↔ набок</button>
+          <button class="mini" data-rot="y" data-i18n="rotY">↻ вокруг</button>
+          <button class="mini" data-rot="x" data-i18n="rotX">↕ вперёд</button>
+          <button class="mini" data-rot="z" data-i18n="rotZ">↔ набок</button>
         </div>
         <div class="row" style="margin-top:8px">
-          <button class="mini" id="dup">Копия</button>
-          <button class="mini" id="mirror">Зеркальная копия</button>
+          <button class="mini" id="dup" data-i18n="dup">Копия</button>
+          <button class="mini" id="mirror" data-i18n="mirror">Зеркальная копия</button>
         </div>
-        <button class="act danger" id="del" style="width:100%;margin-top:6px">🗑️ Удалить деталь</button>
+        <button class="act danger" id="del" style="width:100%;margin-top:6px" data-i18n="delPart">🗑️ Удалить деталь</button>
       </div>
       <div class="sect">
-        <div class="lbl">Цвет</div>
+        <div class="lbl" data-i18n="color">Цвет</div>
         <div class="palette" id="palette"></div>
       </div>
       <div class="sect" id="stampSect" hidden>
-        <div class="lbl">Штампы</div>
+        <div class="lbl" data-i18n="stamps">Штампы</div>
         <div class="stamps" id="stamps"></div>
       </div>
       <div class="sect">
-        <div class="lbl"><span>Толщина</span><span id="sizeOut">4</span></div>
-        <input type="range" id="size" min="1" max="10" value="4" aria-label="Толщина кисти">
+        <div class="lbl"><span data-i18n="brushSize">Толщина</span><span id="sizeOut">4</span></div>
+        <input type="range" id="size" min="1" max="10" value="4" aria-label="Толщина кисти" data-i18n-aria="brushSizeAria">
       </div>
       <div class="sect actions">
-        <button class="act" id="undo" disabled>↩️ Отменить</button>
-        <button class="act" id="fillAll">🎨 Покрасить целиком</button>
-        <button class="act" id="clear">🗑️ Стереть краску</button>
+        <div class="row">
+          <button class="act" id="undo" disabled data-i18n="undo">↩️ Отменить</button>
+          <button class="act" id="redo" disabled data-i18n="redo">↪️ Вернуть</button>
+        </div>
+        <button class="act" id="fillAll" data-i18n="fillAll">🎨 Покрасить целиком</button>
+        <button class="act" id="clear" data-i18n="clearPaint">🗑️ Стереть краску</button>
       </div>
     </section>
 
     <section class="viewer" id="viewer">
       <div class="vbtns">
-        <button id="zoomIn" aria-label="Приблизить">＋</button>
-        <button id="zoomOut" aria-label="Отдалить">－</button>
-        <button id="resetView" aria-label="Вернуть вид">⟳</button>
+        <button id="zoomIn" aria-label="Приблизить" data-i18n-aria="zoomIn">＋</button>
+        <button id="zoomOut" aria-label="Отдалить" data-i18n-aria="zoomOut">－</button>
+        <button id="resetView" aria-label="Вернуть вид" data-i18n-aria="resetView">⟳</button>
       </div>
       <div class="hint" id="hint">Рисуй прямо на фигуре. Чтобы повернуть, тяни по пустому месту.</div>
     </section>
 
     <section class="panel right">
       <div id="shapeRight">
-        <h2>Лист для печати</h2>
-        <canvas class="page" id="page" aria-label="Развёртка на листе А4. На ней тоже можно рисовать."></canvas>
-        <p class="note">На развёртке тоже можно рисовать — удобно для мелких деталей.</p>
+        <h2 data-i18n="sheetTitle">Лист для печати</h2>
+        <canvas class="page" id="page" aria-label="Развёртка на листе А4. На ней тоже можно рисовать." data-i18n-aria="pageAria"></canvas>
+        <p class="note" data-i18n="pageNote">На развёртке тоже можно рисовать — удобно для мелких деталей.</p>
         <div class="field">
-          <div class="lbl"><span>Размер</span><span id="dimOut"></span></div>
-          <input type="range" id="scale" min="50" max="100" step="5" value="100" aria-label="Размер на листе">
+          <div class="lbl"><span data-i18n="shapeScale">Размер</span><span id="dimOut"></span></div>
+          <input type="range" id="scale" min="50" max="100" step="5" value="100" aria-label="Размер на листе" data-i18n-aria="shapeScaleAria">
         </div>
       </div>
       <div id="buildRight" hidden>
-        <h2>Детали фигурки</h2>
+        <h2 data-i18n="partsTitle">Детали фигурки</h2>
         <div class="parts" id="partList"></div>
-        <p class="note" id="partsEmpty">Пока пусто. Добавь деталь сверху или возьми пример.</p>
+        <p class="note" id="partsEmpty" data-i18n="partsEmpty">Пока пусто. Добавь деталь сверху или возьми пример.</p>
         <div class="row" style="margin-top:8px">
-          <button class="mini" id="exampleBear">🐻 Пример: мишка</button>
-          <button class="mini" id="clearParts">Начать заново</button>
+          <button class="mini" id="exampleBear" data-i18n="exampleBear">🐻 Пример: мишка</button>
+          <button class="mini" id="clearParts" data-i18n="clearParts">Начать заново</button>
         </div>
         <div class="field">
-          <div class="lbl"><span>Высота игрушки</span><span id="hOut"></span></div>
-          <input type="range" id="height" min="5" max="30" step="1" value="14" aria-label="Высота игрушки в сантиметрах">
+          <div class="lbl"><span data-i18n="toyHeight">Высота игрушки</span><span id="hOut"></span></div>
+          <input type="range" id="height" min="5" max="30" step="1" value="14" aria-label="Высота игрушки в сантиметрах" data-i18n-aria="toyHeightAria">
           <p class="note" id="fitNote"></p>
         </div>
-        <h2 style="margin-top:14px">Листы для печати <span id="pageCount" style="color:var(--muted);font-weight:500"></span></h2>
+        <h2 style="margin-top:14px"><span data-i18n="sheetsTitle">Листы для печати</span> <span id="pageCount" style="color:var(--muted);font-weight:500"></span></h2>
         <div class="pages" id="pages"></div>
       </div>
       <div class="field">
-        <div class="lbl">Подпиши работу</div>
-        <input type="text" id="name" maxlength="40" placeholder="Имя">
+        <div class="lbl" data-i18n="signLabel">Подпиши работу</div>
+        <input type="text" id="name" maxlength="40" placeholder="Имя" data-i18n-ph="namePh">
       </div>
-      <button class="print" id="printBtn">🖨️ Распечатать</button>
-      <p class="note">В окне печати: формат А4, масштаб 100%.</p>
+      <button class="print" id="printBtn" data-i18n="printBtn">🖨️ Распечатать</button>
+      <p class="note" data-i18n="printTip">В окне печати: формат А4, масштаб 100%.</p>
       <ol class="howto">
-        <li>Вырежи по сплошной линии.</li>
-        <li>Согни все пунктирные линии.</li>
-        <li>Намажь клеем серые язычки и склей.</li>
+        <li data-i18n="howto1">Вырежи по сплошной линии.</li>
+        <li data-i18n="howto2">Согни все пунктирные линии.</li>
+        <li data-i18n="howto3">Намажь клеем серые язычки и склей.</li>
         <li id="howtoLast">Для ёлочной игрушки продень нитку, пока фигура ещё открыта.</li>
       </ol>
     </section>
@@ -265,7 +278,7 @@ const G = (() => {
   const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
   const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
   const len = a => Math.hypot(a[0], a[1], a[2]);
-  const nrm = a => { const l = len(a); return [a[0] / l, a[1] / l, a[2] / l]; };
+  const nrm = a => { const l = len(a); return l > 1e-12 ? [a[0] / l, a[1] / l, a[2] / l] : [0, 0, 1]; };
   const ekey = (a, b) => (a < b ? a + '_' + b : b + '_' + a);
   const ap = (t, p) => [t.c * p[0] - t.s * p[1] + t.x, t.s * p[0] + t.c * p[1] + t.y];
   const unap = (t, q) => { const x = q[0] - t.x, y = q[1] - t.y; return [t.c * x + t.s * y, -t.s * x + t.c * y]; };
@@ -342,7 +355,7 @@ const G = (() => {
     for (const poly of [P, Q]) {
       for (let i = 0; i < poly.length; i++) {
         const a = poly[i], b = poly[(i + 1) % poly.length];
-        let ax = -(b[1] - a[1]), ay = b[0] - a[0]; const l = Math.hypot(ax, ay); ax /= l; ay /= l;
+        let ax = -(b[1] - a[1]), ay = b[0] - a[0]; const l = Math.hypot(ax, ay); if (l < 1e-9) continue; ax /= l; ay /= l;
         let p0 = Infinity, p1 = -Infinity, q0 = Infinity, q1 = -Infinity;
         for (const p of P) { const d = p[0] * ax + p[1] * ay; p0 = Math.min(p0, d); p1 = Math.max(p1, d); }
         for (const p of Q) { const d = p[0] * ax + p[1] * ay; q0 = Math.min(q0, d); q1 = Math.max(q1, d); }
@@ -357,7 +370,8 @@ const G = (() => {
       const a = poly[i], b = poly[(i + 1) % poly.length];
       const ex = b[0] - a[0], ey = b[1] - a[1], px = p[0] - a[0], py = p[1] - a[1];
       if (ex * py - ey * px < 0) inside = false;
-      const t = Math.max(0, Math.min(1, (px * ex + py * ey) / (ex * ex + ey * ey)));
+      const d2 = ex * ex + ey * ey;
+      const t = d2 > 1e-12 ? Math.max(0, Math.min(1, (px * ex + py * ey) / d2)) : 0;
       best = Math.min(best, Math.hypot(px - t * ex, py - t * ey));
     }
     return inside ? 0 : best;
@@ -394,6 +408,7 @@ const G = (() => {
   function makeTab(poly, k) {
     const A = poly[k], B = poly[(k + 1) % poly.length];
     const L = Math.hypot(B[0] - A[0], B[1] - A[1]);
+    if (L < 1e-9) return [A, B, B, A];
     const dx = (B[0] - A[0]) / L, dy = (B[1] - A[1]) / L, ox = dy, oy = -dx;
     const d = Math.min(0.2, 0.3 * L), ins = Math.min(d * 0.9, 0.3 * L);
     return [A, B, [B[0] + ox * d - dx * ins, B[1] + oy * d - dy * ins], [A[0] + ox * d + dx * ins, A[1] + oy * d + dy * ins]];
@@ -405,15 +420,17 @@ const G = (() => {
       const t = deg * Math.PI / 180, c = Math.cos(t), s = Math.sin(t);
       let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
       for (const p of pts) { const x = c * p[0] - s * p[1], y = s * p[0] + c * p[1]; x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
-      const sc = Math.min(AW / (x1 - x0), AH / (y1 - y0));
+      const sc = Math.min(AW / Math.max(1e-9, x1 - x0), AH / Math.max(1e-9, y1 - y0));
       if (!best || sc > best.s + 1e-9) best = { theta: t, s: sc, minx: x0, maxy: y1, w: x1 - x0, h: y1 - y0 };
     }
     return best;
   }
-  function evalNet(P, order) {
+  function evalNet(P, order, allowOverlap = false) {
     const T = place(P, order);
     const polys = P.faces.map((f, i) => f.local.map(p => ap(T[i], p)));
-    for (let i = 0; i < polys.length; i++) for (let j = i + 1; j < polys.length; j++) if (overlaps(polys[i], polys[j])) return null;
+    if (!allowOverlap) {
+      for (let i = 0; i < polys.length; i++) for (let j = i + 1; j < polys.length; j++) if (overlaps(polys[i], polys[j])) return null;
+    }
     const treeKeys = new Set(order.slice(1).map(o => o.key));
     const tabs = []; let bad = 0;
     P.edges.forEach((e, key) => {
@@ -439,7 +456,7 @@ const G = (() => {
       const n = evalNet(P, o); if (!n) continue;
       if (!best || n.bad < best.bad || (n.bad === best.bad && n.fit.s > best.fit.s)) best = n;
     }
-    return best;
+    return best || (cands.length ? evalNet(P, cands[0], true) : null);
   }
 
   return { sub, add, mul, dot, len, ap, unap, distPoly, regular, prism, pyramid, bipyramid, icosa, build, bestNet, AW, AH, ekey };
@@ -451,24 +468,104 @@ if (typeof module !== 'undefined') module.exports = G;
 (() => {
 const R = 400; // texture pixels per unit
 const MODELS = [
-  { id:'cube', name:'Кубик', icon:'🧊', diff:1, make:()=>G.prism(G.regular(4,Math.SQRT1_2,Math.PI/4),1) },
-  { id:'pyr', name:'Пирамида', icon:'🔺', diff:1, make:()=>G.pyramid(4,0.75,0.95) },
-  { id:'house', name:'Домик', icon:'🏠', diff:2, make:()=>G.prism([[-0.5,0],[0.5,0],[0.5,0.6],[0,1.0],[-0.5,0.6]],1.0) },
-  { id:'crystal', name:'Кристалл', icon:'💎', diff:2, make:()=>G.bipyramid(4,0.8,0.8,0.8) },
-  { id:'tree', name:'Ёлочка', icon:'🎄', diff:2, make:()=>G.pyramid(6,0.55,1.6) },
-  { id:'lantern', name:'Фонарик', icon:'🏮', diff:2, make:()=>G.prism(G.regular(6,0.5,0),1.0,true) },
-  { id:'icicle', name:'Сосулька', icon:'❄️', diff:3, make:()=>G.bipyramid(6,0.45,0.35,1.5) },
-  { id:'ball', name:'Шар', icon:'🔮', diff:3, make:()=>G.icosa() },
+  { id:'cube', name:{ru:'Кубик',en:'Cube'}, icon:'🧊', diff:1, make:()=>G.prism(G.regular(4,Math.SQRT1_2,Math.PI/4),1) },
+  { id:'pyr', name:{ru:'Пирамида',en:'Pyramid'}, icon:'🔺', diff:1, make:()=>G.pyramid(4,0.75,0.95) },
+  { id:'house', name:{ru:'Домик',en:'House'}, icon:'🏠', diff:2, make:()=>G.prism([[-0.5,0],[0.5,0],[0.5,0.6],[0,1.0],[-0.5,0.6]],1.0) },
+  { id:'crystal', name:{ru:'Кристалл',en:'Crystal'}, icon:'💎', diff:2, make:()=>G.bipyramid(4,0.8,0.8,0.8) },
+  { id:'tree', name:{ru:'Ёлочка',en:'Pine tree'}, icon:'🎄', diff:2, make:()=>G.pyramid(6,0.55,1.6) },
+  { id:'lantern', name:{ru:'Фонарик',en:'Lantern'}, icon:'🏮', diff:2, make:()=>G.prism(G.regular(6,0.5,0),1.0,true) },
+  { id:'icicle', name:{ru:'Сосулька',en:'Icicle'}, icon:'❄️', diff:3, make:()=>G.bipyramid(6,0.45,0.35,1.5) },
+  { id:'ball', name:{ru:'Шар',en:'Sphere'}, icon:'🔮', diff:3, make:()=>G.icosa() },
 ];
 // primitives for the constructor: unit size 1×1×1, centered
 const PRIMS = [
-  { id:'box', name:'Брусок', icon:'📦', make:()=>G.prism(G.regular(4,Math.SQRT1_2,Math.PI/4),1) },
-  { id:'cyl', name:'Цилиндр', icon:'🥫', make:()=>G.prism(G.regular(6,0.5,0),1,true) },
-  { id:'sph', name:'Шар', icon:'⚪', make:()=>{ const d=G.icosa(); const r=G.len(d.verts[0]); return {verts:d.verts.map(v=>G.mul(v,0.5/r)), faces:d.faces}; } },
-  { id:'cone', name:'Конус', icon:'🍦', make:()=>{ const d=G.pyramid(6,0.5,1); return {verts:d.verts.map(v=>[v[0],v[1]-0.5,v[2]]),faces:d.faces}; } },
-  { id:'pyr', name:'Пирамида', icon:'🔺', make:()=>{ const d=G.pyramid(4,Math.SQRT1_2,1); return {verts:d.verts.map(v=>[v[0],v[1]-0.5,v[2]]),faces:d.faces}; } },
-  { id:'wedge', name:'Клин', icon:'📐', make:()=>G.prism([[-0.5,-0.5],[0.5,-0.5],[-0.5,0.5]],1) },
+  { id:'box', name:{ru:'Брусок',en:'Box'}, icon:'📦', make:()=>G.prism(G.regular(4,Math.SQRT1_2,Math.PI/4),1) },
+  { id:'cyl', name:{ru:'Цилиндр',en:'Cylinder'}, icon:'🥫', make:()=>G.prism(G.regular(6,0.5,0),1,true) },
+  { id:'sph', name:{ru:'Шар',en:'Sphere'}, icon:'⚪', make:()=>{ const d=G.icosa(); const r=G.len(d.verts[0]); return {verts:d.verts.map(v=>G.mul(v,0.5/r)), faces:d.faces}; } },
+  { id:'cone', name:{ru:'Конус',en:'Cone'}, icon:'🍦', make:()=>{ const d=G.pyramid(6,0.5,1); return {verts:d.verts.map(v=>[v[0],v[1]-0.5,v[2]]),faces:d.faces}; } },
+  { id:'pyr', name:{ru:'Пирамида',en:'Pyramid'}, icon:'🔺', make:()=>{ const d=G.pyramid(4,Math.SQRT1_2,1); return {verts:d.verts.map(v=>[v[0],v[1]-0.5,v[2]]),faces:d.faces}; } },
+  { id:'wedge', name:{ru:'Клин',en:'Wedge'}, icon:'📐', make:()=>G.prism([[-0.5,-0.5],[0.5,-0.5],[-0.5,0.5]],1) },
 ];
+const I18N = {
+  ru:{
+    appTitle:'Бумажная мастерская', tabShape:'Фигурка', tabBuild:'Конструктор',
+    saveIdle:'Работа сохраняется сама', saveOk:'Сохранено', saveWarn:'Не сохранилось: слишком много деталей для браузера. Скачай файл.',
+    dlFile:'💾 Скачать файл', openFile:'📂 Открыть файл', modelsAria:'Фигуры', addsAria:'Детали',
+    addLeadTitle:'Добавить деталь', addLeadSub:'появится в центре сцены', toolsTitle:'Чем работаем',
+    toolMove:'Двигать детали', moveTitle:'Переместить (G)', toolRot:'Поворот', rotTitle:'Поворот (R)',
+    toolScale:'Масштаб', scaleTitle:'Масштаб (S)', toolBrush:'Кисть', toolFill:'Заливка',
+    toolStamp:'Штамп', toolEraser:'Ластик', toolOrbit:'Только крутить',
+    selectedPart:'Выбрана деталь', partNameAria:'Название детали', width:'Ширина', height:'Высота', depth:'Глубина',
+    elev:'Поднять / опустить', elevAria:'Высота над полом', rot15:'Повернуть на 15°',
+    rotY:'↻ вокруг', rotX:'↕ вперёд', rotZ:'↔ набок', dup:'Копия', mirror:'Зеркальная копия',
+    delPart:'🗑️ Удалить деталь', copySuf:' копия', mirrorSuf:' (зерк.)',
+    color:'Цвет', colorSwatch:'Цвет ', customColor:'Свой цвет', stamps:'Штампы',
+    brushSize:'Толщина', brushSizeAria:'Толщина кисти', undo:'↩️ Отменить', redo:'↪️ Вернуть',
+    fillAll:'🎨 Покрасить целиком', clearPaint:'🗑️ Стереть краску',
+    zoomIn:'Приблизить', zoomOut:'Отдалить', resetView:'Вернуть вид',
+    hintShape:'Рисуй прямо на фигуре. Чтобы повернуть, тяни по пустому месту.',
+    hintBuild:'Выбери деталь — тяни стрелки (G), кольца (R) или масштаб (S). Крутить сцену — по пустому месту.',
+    sheetTitle:'Лист для печати', pageAria:'Развёртка на листе А4. На ней тоже можно рисовать.',
+    pageNote:'На развёртке тоже можно рисовать — удобно для мелких деталей.',
+    shapeScale:'Размер', shapeScaleAria:'Размер на листе', partsTitle:'Детали фигурки',
+    partsEmpty:'Пока пусто. Добавь деталь сверху или возьми пример.',
+    exampleBear:'🐻 Пример: мишка', clearParts:'Начать заново',
+    toyHeight:'Высота игрушки', toyHeightAria:'Высота игрушки в сантиметрах',
+    fitNote:'Размер уменьшен, чтобы самая большая деталь влезла на лист.',
+    sheetsTitle:'Листы для печати', signLabel:'Подпиши работу', namePh:'Имя',
+    printBtn:'🖨️ Распечатать', printTip:'В окне печати: формат А4, масштаб 100%.',
+    howto1:'Вырежи по сплошной линии.', howto2:'Согни все пунктирные линии.',
+    howto3:'Намажь клеем серые язычки и склей.',
+    howtoShape:'Для ёлочной игрушки продень нитку, пока фигура ещё открыта.',
+    howtoBuild:'Склей каждую деталь отдельно, потом приклей детали друг к другу.',
+    cut:'вырезать', fold:'согнуть', glue:'мазать клеем', shapeSub:' · с Новым годом!',
+    buildTitle:'Фигурка из деталей', unit:'см', dlFallback:'моя-работа', openErr:'Не удалось открыть файл',
+    sheetOf:(n,tot)=>`  ·  лист ${n} из ${tot}`, diffAria:d=>`сложность ${d} из 3`,
+    bear:['Туловище','Голова','Мордочка','Ухо левое','Ухо правое','Лапа левая','Лапа правая','Нога левая','Нога правая','Животик']
+  },
+  en:{
+    appTitle:'Paper Workshop', tabShape:'Shapes', tabBuild:'Builder',
+    saveIdle:'Auto-saved locally', saveOk:'Saved', saveWarn:'Not saved: too many parts for browser storage. Download the file.',
+    dlFile:'💾 Save file', openFile:'📂 Open file', modelsAria:'Shapes', addsAria:'Parts',
+    addLeadTitle:'Add a part', addLeadSub:'appears at scene center', toolsTitle:'Tools',
+    toolMove:'Move parts', moveTitle:'Move (G)', toolRot:'Rotate', rotTitle:'Rotate (R)',
+    toolScale:'Scale', scaleTitle:'Scale (S)', toolBrush:'Brush', toolFill:'Fill',
+    toolStamp:'Stamp', toolEraser:'Eraser', toolOrbit:'Orbit camera',
+    selectedPart:'Selected part', partNameAria:'Part name', width:'Width', height:'Height', depth:'Depth',
+    elev:'Raise / lower', elevAria:'Height above floor', rot15:'Rotate by 15°',
+    rotY:'↻ yaw', rotX:'↕ pitch', rotZ:'↔ roll', dup:'Duplicate', mirror:'Mirror copy',
+    delPart:'🗑️ Delete part', copySuf:' copy', mirrorSuf:' (mirror)',
+    color:'Color', colorSwatch:'Color ', customColor:'Custom color', stamps:'Stamps',
+    brushSize:'Size', brushSizeAria:'Brush size', undo:'↩️ Undo', redo:'↪️ Redo',
+    fillAll:'🎨 Paint all', clearPaint:'🗑️ Clear paint',
+    zoomIn:'Zoom in', zoomOut:'Zoom out', resetView:'Reset view',
+    hintShape:'Draw directly on the 3D shape. Drag empty space to orbit.',
+    hintBuild:'Select a part — drag arrows (G), rings (R), or scale handles (S). Drag empty space to orbit.',
+    sheetTitle:'Printable sheet', pageAria:'A4 net preview. You can draw directly on it too.',
+    pageNote:'You can also draw on the flat net — handy for fine details.',
+    shapeScale:'Size', shapeScaleAria:'Size on sheet', partsTitle:'Model parts',
+    partsEmpty:'No parts yet. Add a part above or load the example.',
+    exampleBear:'🐻 Example: bear', clearParts:'Start over',
+    toyHeight:'Toy height', toyHeightAria:'Toy height in centimeters',
+    fitNote:'Scaled down so the largest part fits onto an A4 sheet.',
+    sheetsTitle:'Printable sheets', signLabel:'Sign your craft', namePh:'Your name',
+    printBtn:'🖨️ Print', printTip:'In the print dialog: A4 paper size, 100% scale.',
+    howto1:'Cut along the solid lines.', howto2:'Fold along all dashed lines.',
+    howto3:'Apply glue to gray tabs and assemble.',
+    howtoShape:'For a hanging ornament, thread a string before gluing it closed.',
+    howtoBuild:'Assemble each part separately, then glue the parts together.',
+    cut:'cut', fold:'fold', glue:'glue tab', shapeSub:' · Paper Craft',
+    buildTitle:'Custom multi-part model', unit:'cm', dlFallback:'my-papercraft', openErr:'Could not open file',
+    sheetOf:(n,tot)=>`  ·  sheet ${n} of ${tot}`, diffAria:d=>`difficulty ${d} of 3`,
+    bear:['Body','Head','Snout','Left ear','Right ear','Left arm','Right arm','Left leg','Right leg','Belly']
+  }
+};
+const LANG_KEY='paper-workshop-lang';
+const urlLang=(typeof location!=='undefined'&&location.search)?new URLSearchParams(location.search).get('lang'):null;
+let lang=(urlLang==='en'||urlLang==='ru')?urlLang:((()=>{ try{ return localStorage.getItem(LANG_KEY)==='en'?'en':'ru'; }catch(e){ return 'ru'; } })());
+const t=k=>I18N[lang][k];
+const tName=v=>typeof v==='string'?v:v[lang];
+let saveStatusKey='saveIdle';
 const COLORS = ['#ffffff','#1f2024','#d62f2f','#f08a24','#f6d03c','#7cc35a','#1e7a46','#5bb6e8','#2557c6','#7a4bc4','#f17fb5','#8a5a3b','#d4a72c','#b8bec7'];
 const STAMPS = ['❄\uFE0E','★','♥','✦','●','🎄','⛄','🎁','🦌','🍬','😊','🐱','⭐','🔔','🍊'];
 
@@ -476,7 +573,7 @@ let mode='shape'; // 'shape' | 'build'
 let tool='brush', color='#d62f2f', sizeVal=4, stamp=STAMPS[0], sizePct=1;
 let cur=null; const cache=new Map();
 let parts=[], selected=null, partSeq=0, targetHeightCm=14;
-const undoStack=[];
+const undoStack=[], redoStack=[];
 const $=id=>document.getElementById(id);
 
 // ---------- three ----------
@@ -515,6 +612,7 @@ function makeFaces(P, group, part, oldFaces){
     const ctx=cv.getContext('2d'); ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,W,H);
     if(oldFaces && oldFaces[i]) ctx.drawImage(oldFaces[i].cv,0,0,W,H);
     const tex=new THREE.CanvasTexture(cv); tex.anisotropy=aniso();
+    const base=(oldFaces && oldFaces[i]) ? oldFaces[i].base : '#ffffff';
     const pos=[], uv=[];
     for(let k=1;k<f.idx.length-1;k++) for(const j of [0,k,k+1]){
       pos.push(...P.verts[f.idx[j]]); const l=f.local[j];
@@ -526,7 +624,7 @@ function makeFaces(P, group, part, oldFaces){
     geo.computeVertexNormals();
     const mesh=new THREE.Mesh(geo,new THREE.MeshLambertMaterial({map:tex, polygonOffset:true, polygonOffsetFactor:1, polygonOffsetUnits:1}));
     mesh.userData.fi=i; mesh.userData.part=part; group.add(mesh);
-    return {cv,ctx,tex,mesh,bx0,by1,W,H};
+    return {cv,ctx,tex,mesh,bx0,by1,W,H,base};
   });
   const ep=[]; P.edges.forEach(e=>{ ep.push(...P.verts[e.a],...P.verts[e.b]); });
   const lg=new THREE.BufferGeometry(); lg.setAttribute('position',new THREE.Float32BufferAttribute(ep,3));
@@ -546,7 +644,7 @@ function loadModel(def){
   const {faces}=makeFaces(P,group,part); part.faces=faces; part.meshes=faces.map(f=>f.mesh);
   cur=part; cache.set(def.id,cur); afterSwitch();
 }
-function afterSwitch(){ netDirty=true; updateDim(); document.querySelectorAll('.model[data-id]').forEach(b=>b.setAttribute('aria-pressed', b.dataset.id===cur.def.id)); }
+function afterSwitch(){ netDirty=true; updateDim(); updateUndo(); document.querySelectorAll('.model[data-id]').forEach(b=>b.setAttribute('aria-pressed', b.dataset.id===cur.def.id)); }
 
 // ---------- build tab ----------
 function partDef(part){ const d=PRIMS.find(p=>p.id===part.type).make(); return {verts:d.verts.map(v=>[v[0]*part.size[0],v[1]*part.size[1],v[2]*part.size[2]]), faces:d.faces}; }
@@ -563,16 +661,16 @@ function rebuildPart(part){
 }
 function addPart(type, opts={}){
   const prim=PRIMS.find(p=>p.id===type); partSeq++;
-  const part={id:partSeq, type, name:opts.name||prim.name+' '+partSeq, size:opts.size||[1,1,1], pos:opts.pos||[0,0,0], rot:opts.rot||[0,0,0], faces:null, group:null};
+  const part={id:partSeq, type, name:opts.name||tName(prim.name)+' '+partSeq, size:opts.size||[1,1,1], pos:opts.pos||[0,0,0], rot:opts.rot||[0,0,0], faces:null, group:null};
   parts.push(part); rebuildPart(part);
   if(!opts.pos){ part.pos=[0,-part.minY,0]; part.group.position.set(...part.pos); }
-  if(opts.copyFrom) opts.copyFrom.faces.forEach((f,i)=>{ part.faces[i].ctx.drawImage(f.cv,0,0); part.faces[i].tex.needsUpdate=true; });
+  if(opts.copyFrom) opts.copyFrom.faces.forEach((f,i)=>{ part.faces[i].ctx.drawImage(f.cv,0,0); part.faces[i].base=f.base; part.faces[i].tex.needsUpdate=true; });
   select(part); renderPartList(); recenter(); netDirty=true; saveSoon();
   return part;
 }
-function removePart(part){ disposeGroup(part.group); bworld.remove(part.group); parts=parts.filter(p=>p!==part); if(selected===part) select(null); renderPartList(); recenter(); netDirty=true; saveSoon(); }
+function removePart(part){ disposeGroup(part.group); bworld.remove(part.group); part.faces=null; parts=parts.filter(p=>p!==part); pruneUndo(p=>p!==part); if(selected===part) select(null); renderPartList(); recenter(); netDirty=true; saveSoon(); }
 function setSelectedLook(part,on){ if(part.lines){ part.lines.material.color.set(on?0xe2ad35:0x2a3340); part.lines.material.opacity=on?1:0.5; } }
-function select(part){ if(selected) setSelectedLook(selected,false); selected=part; if(part) setSelectedLook(part,true); renderPartCtl(); document.querySelectorAll('.part').forEach(b=>b.setAttribute('aria-pressed', !!selected && +b.dataset.id===selected.id)); }
+function select(part){ pyStart=null; sizeStart=null; if(selected) setSelectedLook(selected,false); selected=part; if(part) setSelectedLook(part,true); updateGizmo(); renderPartCtl(); document.querySelectorAll('.part').forEach(b=>b.setAttribute('aria-pressed', !!selected && +b.dataset.id===selected.id)); }
 function modelBounds(){
   let lo=[1e9,1e9,1e9], hi=[-1e9,-1e9,-1e9]; const v=new THREE.Vector3();
   parts.forEach(p=>p.P.verts.forEach(q=>{ v.set(q[0],q[1],q[2]).applyEuler(p.group.rotation).add(p.group.position); lo=[Math.min(lo[0],v.x),Math.min(lo[1],v.y),Math.min(lo[2],v.z)]; hi=[Math.max(hi[0],v.x),Math.max(hi[1],v.y),Math.max(hi[2],v.z)]; }));
@@ -587,33 +685,37 @@ function renderPartList(){
 }
 function renderPartCtl(){
   const c=$('partCtl'); if(!selected||mode!=='build'){ c.hidden=true; return; } c.hidden=false;
-  $('partType').textContent=PRIMS.find(x=>x.id===selected.type).name;
+  $('partType').textContent=tName(PRIMS.find(x=>x.id===selected.type).name);
   $('partName').value=selected.name;
   [['sx',0],['sy',1],['sz',2]].forEach(([id,i])=>{ $(id).value=selected.size[i]; $(id+'Out').textContent=selected.size[i].toFixed(2); });
   const bottom=Math.round((selected.pos[1]+selected.minY)*100)/100; $('py').value=bottom; $('pyOut').textContent=(bottom||0).toFixed(2);
 }
-['sx','sy','sz'].forEach((id,i)=>$(id).oninput=e=>{ if(!selected) return; selected.size[i]=+e.target.value; $(id+'Out').textContent=(+e.target.value).toFixed(2); const bottom=selected.pos[1]+selected.minY; rebuildPart(selected); selected.pos[1]=bottom-selected.minY; selected.group.position.y=selected.pos[1]; recenter(); saveSoon(); });
-$('py').oninput=e=>{ if(!selected) return; selected.pos[1]=+e.target.value-selected.minY; selected.group.position.y=selected.pos[1]; $('pyOut').textContent=(+e.target.value).toFixed(2); recenter(); saveSoon(); };
+let pyStart=null, sizeStart=null;
+const startSize=()=>{ if(selected) sizeStart={part:selected,size:selected.size.slice(),pos:selected.pos.slice(),faces:snapFaces(selected)}; };
+['sx','sy','sz'].forEach((id,i)=>{
+  $(id).addEventListener('pointerdown',startSize);
+  $(id).oninput=e=>{ if(!selected) return; if(!sizeStart||sizeStart.part!==selected) startSize(); selected.size[i]=+e.target.value; $(id+'Out').textContent=(+e.target.value).toFixed(2); const bottom=selected.pos[1]+selected.minY; rebuildPart(selected); selected.pos[1]=bottom-selected.minY; selected.group.position.y=selected.pos[1]; updateGizmo(); recenter(); saveSoon(); };
+  $(id).onchange=()=>{ if(sizeStart&&sizeStart.part===selected) pushTransform(selected,{size:sizeStart.size,pos:sizeStart.pos,faces:sizeStart.faces}); sizeStart=null; };
+});
+$('py').addEventListener('pointerdown',()=>{ if(selected) pyStart={part:selected,pos:selected.pos.slice()}; });
+$('py').oninput=e=>{ if(!selected) return; if(!pyStart||pyStart.part!==selected) pyStart={part:selected,pos:selected.pos.slice()}; selected.pos[1]=+e.target.value-selected.minY; selected.group.position.y=selected.pos[1]; $('pyOut').textContent=(+e.target.value).toFixed(2); updateGizmo(); recenter(); saveSoon(); };
+$('py').onchange=()=>{ if(pyStart&&pyStart.part===selected) pushTransform(selected,{pos:pyStart.pos}); pyStart=null; };
 $('partName').oninput=e=>{ if(!selected) return; selected.name=e.target.value; renderPartList(); netDirty=true; saveSoon(); };
-document.querySelectorAll('[data-rot]').forEach(b=>b.onclick=()=>{ if(!selected) return; const i={x:0,y:1,z:2}[b.dataset.rot]; selected.rot[i]+=Math.PI/12; selected.group.rotation.set(...selected.rot); recenter(); netDirty=true; saveSoon(); });
-$('dup').onclick=()=>{ if(!selected) return; const s=selected; addPart(s.type,{size:s.size.slice(),pos:[s.pos[0]+0.4,s.pos[1],s.pos[2]],rot:s.rot.slice(),copyFrom:s,name:s.name+' копия'}); };
-$('mirror').onclick=()=>{ if(!selected) return; const s=selected; addPart(s.type,{size:s.size.slice(),pos:[-s.pos[0],s.pos[1],s.pos[2]],rot:[s.rot[0],-s.rot[1],-s.rot[2]],copyFrom:s,name:s.name+' (зерк.)'}); };
+document.querySelectorAll('[data-rot]').forEach(b=>b.onclick=()=>{ if(!selected) return; const oldRot=selected.rot.slice(), i={x:0,y:1,z:2}[b.dataset.rot]; selected.rot[i]+=Math.PI/12; selected.group.rotation.set(...selected.rot); pushTransform(selected,{rot:oldRot}); updateGizmo(); recenter(); netDirty=true; saveSoon(); });
+$('dup').onclick=()=>{ if(!selected) return; const s=selected; addPart(s.type,{size:s.size.slice(),pos:[s.pos[0]+0.4,s.pos[1],s.pos[2]],rot:s.rot.slice(),copyFrom:s,name:s.name+t('copySuf')}); };
+$('mirror').onclick=()=>{ if(!selected) return; const s=selected; addPart(s.type,{size:s.size.slice(),pos:[-s.pos[0],s.pos[1],s.pos[2]],rot:[s.rot[0],-s.rot[1],-s.rot[2]],copyFrom:s,name:s.name+t('mirrorSuf')}); };
 $('del').onclick=()=>{ if(selected) removePart(selected); };
 $('clearParts').onclick=()=>{ parts.slice().forEach(removePart); partSeq=0; };
 $('exampleBear').onclick=()=>{
   parts.slice().forEach(removePart); partSeq=0;
-  const add=(type,name,size,pos,col,rot)=>{ const p=addPart(type,{name,size,pos,rot}); p.faces.forEach(f=>{ f.ctx.fillStyle=col; f.ctx.fillRect(0,0,f.W,f.H); f.tex.needsUpdate=true; }); return p; };
-  const br='#8a5a3b', lt='#d9b48c';
-  add('box','Туловище',[1.2,1.3,0.9],[0,0.65,0],br);
-  add('box','Голова',[1.0,0.9,0.9],[0,1.75,0.1],br);
-  add('box','Мордочка',[0.5,0.35,0.3],[0,1.5,0.6],lt);
-  add('cyl','Ухо левое',[0.3,0.12,0.3],[-0.4,2.2,0.1],br,[Math.PI/2,0,0]);
-  add('cyl','Ухо правое',[0.3,0.12,0.3],[0.4,2.2,0.1],br,[Math.PI/2,0,0]);
-  add('box','Лапа левая',[0.35,0.9,0.35],[-0.8,0.75,0],br);
-  add('box','Лапа правая',[0.35,0.9,0.35],[0.8,0.75,0],br);
-  add('box','Нога левая',[0.4,0.45,0.5],[-0.35,0.22,0.15],br);
-  add('box','Нога правая',[0.4,0.45,0.5],[0.35,0.22,0.15],br);
-  add('box','Животик',[0.7,0.8,0.1],[0,0.6,0.5],lt);
+  const add=(type,name,size,pos,col,rot)=>{ const p=addPart(type,{name,size,pos,rot}); p.faces.forEach(f=>{ f.ctx.fillStyle=col; f.ctx.fillRect(0,0,f.W,f.H); f.base=col; f.tex.needsUpdate=true; }); return p; };
+  const br='#8a5a3b', lt='#d9b48c', bn=t('bear');
+  [['box',bn[0],[1.2,1.3,0.9],[0,0.65,0],br], ['box',bn[1],[1.0,0.9,0.9],[0,1.75,0.1],br],
+   ['box',bn[2],[0.5,0.35,0.3],[0,1.5,0.6],lt], ['cyl',bn[3],[0.3,0.12,0.3],[-0.4,2.2,0.1],br,[Math.PI/2,0,0]],
+   ['cyl',bn[4],[0.3,0.12,0.3],[0.4,2.2,0.1],br,[Math.PI/2,0,0]], ['box',bn[5],[0.35,0.9,0.35],[-0.8,0.75,0],br],
+   ['box',bn[6],[0.35,0.9,0.35],[0.8,0.75,0],br], ['box',bn[7],[0.4,0.45,0.5],[-0.35,0.22,0.15],br],
+   ['box',bn[8],[0.4,0.45,0.5],[0.35,0.22,0.15],br], ['box',bn[9],[0.7,0.8,0.1],[0,0.6,0.5],lt]]
+    .forEach(a=>add(...a));
   select(null); recenter(); netDirty=true;
 };
 
@@ -621,8 +723,25 @@ $('exampleBear').onclick=()=>{
 let pending=null;
 const rUnits=()=>0.012+sizeVal*0.011;
 function beginStroke(){ pending=new Map(); }
-function touch(part,fi){ if(!pending) return; let m=pending.get(part); if(!m){ m=new Map(); pending.set(part,m); } if(!m.has(fi)){ const f=part.faces[fi]; m.set(fi,f.ctx.getImageData(0,0,f.W,f.H)); } }
-function endStroke(){ if(pending && pending.size){ undoStack.push(pending); if(undoStack.length>30) undoStack.shift(); updateUndo(); } pending=null; }
+function touch(part,fi){ if(!pending) return; let rec=pending.get(part); if(!rec){ rec={faces:new Map()}; pending.set(part,rec); } if(!rec.faces) rec.faces=new Map(); if(!rec.faces.has(fi)){ const f=part.faces[fi]; rec.faces.set(fi,{img:f.ctx.getImageData(0,0,f.W,f.H),base:f.base}); } }
+function snapFaces(part){
+  const m=new Map();
+  if(part&&part.faces) part.faces.forEach((f,fi)=>m.set(fi,{img:f.ctx.getImageData(0,0,f.W,f.H),base:f.base}));
+  return m;
+}
+function pushUndoMap(m){
+  undoStack.push(m); if(undoStack.length>30) undoStack.shift();
+  pruneStack(redoStack,p=>!isActivePart(p)); updateUndo();
+}
+function pushTransform(part,oldRec){
+  if(!part||!oldRec) return;
+  const rec={}, diff=(a,b)=>a&&b&&Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2])>=1e-6;
+  if(oldRec.pos&&diff(part.pos,oldRec.pos)) rec.pos=oldRec.pos.slice();
+  if(oldRec.rot&&diff(part.rot,oldRec.rot)) rec.rot=oldRec.rot.slice();
+  if(oldRec.size&&diff(part.size,oldRec.size)){ rec.size=oldRec.size.slice(); if(oldRec.faces) rec.faces=oldRec.faces; }
+  if(rec.pos||rec.rot||rec.size) pushUndoMap(new Map([[part,rec]]));
+}
+function endStroke(){ if(pending && pending.size) pushUndoMap(pending); pending=null; }
 function changed(part,fi){ part.faces[fi].tex.needsUpdate=true; netDirty=true; saveSoon(); }
 function toPx(F,l){ return [(l[0]-F.bx0)*R,(F.by1-l[1])*R]; }
 function paintColor(){ return tool==='eraser' ? '#ffffff' : color; }
@@ -640,7 +759,65 @@ function strokeTo(a,b){
   const d=G.len(G.sub(b.p,a.p)), n=Math.max(1,Math.ceil(d/(rUnits()*0.35)));
   for(let i=1;i<=n;i++){ const t=i/n; dab(b.part,[a.p[0]+(b.p[0]-a.p[0])*t, a.p[1]+(b.p[1]-a.p[1])*t, a.p[2]+(b.p[2]-a.p[2])*t]); }
 }
-function fillFace(part,fi,col){ const F=part.faces[fi]; touch(part,fi); F.ctx.fillStyle=col; F.ctx.fillRect(0,0,F.W,F.H); changed(part,fi); }
+const FILL_TOL2=45*45;
+function parseHex(hex){
+  let h=String(hex||'').replace('#','');
+  if(h.length===3) h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+  const n=parseInt(h,16);
+  return Number.isFinite(n)?[(n>>16)&255,(n>>8)&255,n&255]:[255,255,255];
+}
+function floodFill(part,fi,x0,y0,col){
+  const F=part.faces[fi], W=F.W, H=F.H;
+  const img=F.ctx.getImageData(0,0,W,H), d=img.data;
+  const i0=(y0*W+x0)*4, sr=d[i0], sg=d[i0+1], sb=d[i0+2];
+  const [fr,fg,fb]=parseHex(col);
+  if(Math.abs(fr-sr)<=2 && Math.abs(fg-sg)<=2 && Math.abs(fb-sb)<=2) return;
+  const vis=new Uint8Array(W*H);
+  const match=idx=>{
+    if(vis[idx]) return false;
+    const j=idx*4, dr=d[j]-sr, dg=d[j+1]-sg, db=d[j+2]-sb;
+    return dr*dr+dg*dg+db*db<=FILL_TOL2;
+  };
+  const stack=[x0,y0];
+  let filled=0;
+  while(stack.length){
+    const y=stack.pop(), x=stack.pop();
+    if(!match(y*W+x)) continue;
+    let lx=x; while(lx>0 && match(y*W+lx-1)) lx--;
+    let rx=x; while(rx<W-1 && match(y*W+rx+1)) rx++;
+    let up=false, dn=false;
+    for(let cx=lx;cx<=rx;cx++){
+      const idx=y*W+cx, j=idx*4;
+      vis[idx]=1; d[j]=fr; d[j+1]=fg; d[j+2]=fb; d[j+3]=255; filled++;
+      if(y>0){ const m=match((y-1)*W+cx); if(!up&&m){ stack.push(cx,y-1); up=true; } else if(up&&!m) up=false; }
+      if(y<H-1){ const m=match((y+1)*W+cx); if(!dn&&m){ stack.push(cx,y+1); dn=true; } else if(dn&&!m) dn=false; }
+    }
+  }
+  if(!filled) return;
+  touch(part,fi);
+  F.ctx.putImageData(img,0,0);
+  if(filled===W*H) F.base=col;
+  changed(part,fi);
+}
+function fillAt(h,col){
+  const part=h.part, f=part.P.faces[h.fi], F=part.faces[h.fi], d=G.sub(h.p,f.o);
+  const [fx,fy]=toPx(F,[G.dot(d,f.u),G.dot(d,f.w)]);
+  if(!Number.isFinite(fx)||!Number.isFinite(fy)) return;
+  floodFill(part,h.fi,Math.max(0,Math.min(F.W-1,Math.round(fx))),Math.max(0,Math.min(F.H-1,Math.round(fy))),col);
+}
+function replaceBase(part,fi,col){
+  const F=part.faces[fi], W=F.W, H=F.H;
+  const [sr,sg,sb]=parseHex(F.base), [fr,fg,fb]=parseHex(col);
+  if(Math.abs(fr-sr)<=2 && Math.abs(fg-sg)<=2 && Math.abs(fb-sb)<=2) return;
+  const img=F.ctx.getImageData(0,0,W,H), d=img.data;
+  let hit=false;
+  for(let j=0;j<d.length;j+=4){
+    const dr=d[j]-sr, dg=d[j+1]-sg, db=d[j+2]-sb;
+    if(dr*dr+dg*dg+db*db<=FILL_TOL2){ d[j]=fr; d[j+1]=fg; d[j+2]=fb; d[j+3]=255; hit=true; }
+  }
+  if(!hit) return;
+  touch(part,fi); F.ctx.putImageData(img,0,0); F.base=col; changed(part,fi);
+}
 function stampAt(h){
   const part=h.part, f=part.P.faces[h.fi], F=part.faces[h.fi], d=G.sub(h.p,f.o), [x,y]=toPx(F,[G.dot(d,f.u),G.dot(d,f.w)]);
   const px=rUnits()*R*4.5; touch(part,h.fi);
@@ -650,13 +827,63 @@ function stampAt(h){
 }
 function applyTool(h){
   if(tool==='brush'||tool==='eraser') dab(h.part,h.p);
-  else if(tool==='fill') fillFace(h.part,h.fi,color);
+  else if(tool==='fill') fillAt(h,color);
   else if(tool==='stamp') stampAt(h);
 }
 const continuous=()=>tool==='brush'||tool==='eraser';
-function doUndo(){ const m=undoStack.pop(); if(!m) return; m.forEach((fm,part)=>{ if(!part.faces) return; fm.forEach((img,fi)=>{ if(part.faces[fi] && part.faces[fi].W===img.width && part.faces[fi].H===img.height){ part.faces[fi].ctx.putImageData(img,0,0); changed(part,fi); } }); }); updateUndo(); }
-function updateUndo(){ $('undo').disabled=!undoStack.length; }
-function fillAll(col){ const list = mode==='shape' ? [cur] : (selected?[selected]:parts); beginStroke(); list.forEach(p=>p.faces.forEach((_,i)=>fillFace(p,i,col))); endStroke(); }
+const isActivePart=p=> mode==='shape' ? p===cur : parts.includes(p);
+function pruneStack(stack,filterPart){
+  for(let i=stack.length-1;i>=0;i--){
+    const m=stack[i];
+    for(const [part,rec] of [...m.entries()]){
+      if(!filterPart(part,rec)) m.delete(part);
+      else if((!rec.faces||!rec.faces.size)&&!rec.pos&&!rec.rot&&!rec.size) m.delete(part);
+    }
+    if(!m.size) stack.splice(i,1);
+  }
+}
+function pruneUndo(filterPart){ pruneStack(undoStack,filterPart); pruneStack(redoStack,filterPart); updateUndo(); }
+function applyHistory(from,to){
+  let idx=-1;
+  for(let i=from.length-1;i>=0;i--) if([...from[i].keys()].some(isActivePart)){ idx=i; break; }
+  if(idx<0) return;
+  const m=from.splice(idx,1)[0], rev=new Map();
+  let xform=false;
+  m.forEach((rec,part)=>{
+    const rrec={};
+    if(rec.size){
+      rrec.size=part.size.slice(); rrec.faces=snapFaces(part);
+      part.size=rec.size.slice(); rebuildPart(part); xform=true;
+    }
+    if(rec.faces && part.faces){
+      rec.faces.forEach((snap,fi)=>{
+        const f=part.faces[fi]; if(!f) return;
+        if(!rec.size){
+          if(!rrec.faces) rrec.faces=new Map();
+          rrec.faces.set(fi,{img:f.ctx.getImageData(0,0,f.W,f.H),base:f.base});
+        }
+        if(f.W===snap.img.width && f.H===snap.img.height){ f.ctx.putImageData(snap.img,0,0); }
+        else { const tc=document.createElement('canvas'); tc.width=snap.img.width; tc.height=snap.img.height; tc.getContext('2d').putImageData(snap.img,0,0); f.ctx.clearRect(0,0,f.W,f.H); f.ctx.drawImage(tc,0,0,f.W,f.H); }
+        f.base=snap.base; changed(part,fi);
+      });
+    }
+    if(rec.pos){ rrec.pos=part.pos.slice(); part.pos=rec.pos.slice(); part.group.position.set(...part.pos); xform=true; }
+    if(rec.rot){ rrec.rot=part.rot.slice(); part.rot=rec.rot.slice(); part.group.rotation.set(...part.rot); xform=true; }
+    if(rrec.faces||rrec.pos||rrec.rot||rrec.size) rev.set(part,rrec);
+  });
+  if(xform){ pyStart=null; sizeStart=null; recenter(); updateGizmo(); renderPartCtl(); netDirty=true; saveSoon(); }
+  if(rev.size){ to.push(rev); if(to.length>30) to.shift(); }
+  updateUndo();
+}
+const doUndo=()=>applyHistory(undoStack,redoStack);
+const doRedo=()=>applyHistory(redoStack,undoStack);
+function updateUndo(){
+  const has=st=>st.some(m=>[...m.keys()].some(isActivePart));
+  $('undo').disabled=!has(undoStack);
+  $('redo').disabled=!has(redoStack);
+}
+function fillAll(col){ const list = mode==='shape' ? [cur] : (selected?[selected]:parts); beginStroke(); list.forEach(p=>p.faces.forEach((_,i)=>replaceBase(p,i,col))); endStroke(); }
+function clearAll(){ const list = mode==='shape' ? [cur] : (selected?[selected]:parts); beginStroke(); list.forEach(p=>p.faces.forEach((_,i)=>{ const F=p.faces[i]; touch(p,i); F.ctx.fillStyle='#ffffff'; F.ctx.fillRect(0,0,F.W,F.H); F.base='#ffffff'; changed(p,i); })); endStroke(); }
 
 // ---------- 3D pointer ----------
 const ray=new THREE.Raycaster(), ndc=new THREE.Vector2();
@@ -671,28 +898,128 @@ const ptrs=new Map(); let drag=null;
 const pinchDist=()=>{ const a=[...ptrs.values()]; return Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y); };
 function zoom(f){ orbit.dist=Math.min(16,Math.max(2.2,orbit.dist*f)); updateCamera(); }
 function groundPlaneAt(part){ const pt=part.group.getWorldPosition(new THREE.Vector3()); return new THREE.Plane().setFromNormalAndCoplanarPoint(new THREE.Vector3(0,1,0),pt); }
+const isBuildTool=t=>t==='move'||t==='rotPart'||t==='scalePart';
+function startRotDrag(part,ax,e){
+  const origin=gizmo.position.clone(), camVec=camera.position.clone().sub(origin);
+  const viewDir=camVec.lengthSq()>1e-8?camVec.normalize():new THREE.Vector3(0,0,1);
+  const axisVec=ax==='view'?viewDir.clone():new THREE.Vector3(ax==='x'?1:0,ax==='y'?1:0,ax==='z'?1:0);
+  const rot0=part.rot.slice(), q0=new THREE.Quaternion().setFromEuler(new THREE.Euler(rot0[0],rot0[1],rot0[2],'XYZ'));
+  const cosV=axisVec.dot(viewDir);
+  if(Math.abs(cosV)>=0.25){
+    const c=toScreen(origin), prevA=Math.atan2(-(e.clientY-c.y),e.clientX-c.x);
+    drag={mode:'rotPart',part,rot0,q0,axisVec,linear:false,c,prevA,ang:0,sign:cosV>0?1:-1};
+  } else {
+    const tan=new THREE.Vector3().crossVectors(axisVec,viewDir);
+    const s0=toScreen(origin), s1=toScreen(origin.clone().add(tan));
+    const tx=s1.x-s0.x, ty=s1.y-s0.y, tl=Math.hypot(tx,ty);
+    drag={mode:'rotPart',part,rot0,q0,axisVec,linear:true,x0:e.clientX,y0:e.clientY,ux:tl>1e-3?tx/tl:1,uy:tl>1e-3?ty/tl:0};
+  }
+  cvs.style.cursor='grabbing';
+}
+function startScaleDrag(part,ax,e){
+  const origin=gizmo.position.clone(), size0=part.size.slice(), gs=gizmo.scale.x||0.4;
+  if(ax==='all'){
+    const c=toScreen(origin), d0=Math.hypot(e.clientX-c.x,e.clientY-c.y);
+    drag={mode:'scalePart',part,ax:'all',size0,faces0:null,c,d0,denom:Math.max(d0,70)};
+  } else {
+    const axisVec=new THREE.Vector3(ax==='x'?1:0,ax==='y'?1:0,ax==='z'?1:0).applyEuler(part.group.rotation).normalize();
+    setRay(e); const t0=axisParam(axisVec,origin);
+    if(t0===null){ drag={mode:'none'}; return; }
+    drag={mode:'scalePart',part,ax,idx:{x:0,y:1,z:2}[ax],axisVec,origin,size0,faces0:null,t0,denom:(t0>=0?1:-1)*Math.max(0.8*gs,Math.abs(t0))};
+  }
+  cvs.style.cursor='nesw-resize';
+}
+function finalizeScale(part,size0,faces0){
+  if(!part||!size0) return;
+  part.group.scale.set(1,1,1);
+  if(Math.hypot(part.size[0]-size0[0],part.size[1]-size0[1],part.size[2]-size0[2])>=1e-6){
+    rebuildPart(part); pushTransform(part,{size:size0,faces:faces0}); recenter(); netDirty=true; saveSoon();
+  }
+  updateGizmo(); renderPartCtl();
+}
+function commitDrag(){
+  if(!drag) return;
+  if(drag.mode==='paint') endStroke();
+  else if(drag.mode==='move'||drag.mode==='axis'){ pushTransform(drag.part,{pos:drag.pos0}); recenter(); netDirty=true; saveSoon(); }
+  else if(drag.mode==='rotPart'){ pushTransform(drag.part,{rot:drag.rot0}); recenter(); netDirty=true; saveSoon(); }
+  else if(drag.mode==='scalePart') finalizeScale(drag.part,drag.size0,drag.faces0);
+}
 cvs.addEventListener('pointerdown',e=>{
   cvs.setPointerCapture(e.pointerId); ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
-  if(ptrs.size===2){ endStroke(); drag={mode:'pinch',d:pinchDist(),z:orbit.dist}; return; }
+  if(ptrs.size===2){ commitDrag(); drag={mode:'pinch',d:pinchDist(),z:orbit.dist}; return; }
   if(ptrs.size>2) return;
   const gz=hitGizmo(e);
-  if(gz){ const t0=axisParam(gz.axis); drag={mode:'axis',axis:gz.axis,part:selected,t0,pos0:selected.pos.slice()}; return; }
+  if(gz){
+    if(tool==='move'){
+      const origin=gizmo.position.clone(), t0=axisParam(gz.axis,origin);
+      drag = t0===null ? {mode:'none'} : {mode:'axis',axis:gz.axis,part:selected,origin,t0,pos0:selected.pos.slice()};
+      cvs.style.cursor='move';
+    } else if(tool==='rotPart') startRotDrag(selected,gz.axis,e);
+    else if(tool==='scalePart') startScaleDrag(selected,gz.axis,e);
+    return;
+  }
   const h= tool==='rotate' ? null : hit3D(e);
   if(!h){ drag={mode:'rotate',x:e.clientX,y:e.clientY}; cvs.style.cursor='grabbing'; return; }
-  if(tool==='move'){ select(h.part); const plane=groundPlaneAt(h.part), hp=new THREE.Vector3(); ray.ray.intersectPlane(plane,hp); drag={mode:'move',part:h.part,plane,start:bworld.worldToLocal(hp.clone()),pos0:h.part.pos.slice()}; return; }
+  if(isBuildTool(tool)){
+    select(h.part);
+    if(tool==='move'){
+      const plane=groundPlaneAt(h.part), hp=new THREE.Vector3();
+      if(!ray.ray.intersectPlane(plane,hp)){ drag={mode:'none'}; return; }
+      drag={mode:'move',part:h.part,plane,start:bworld.worldToLocal(hp.clone()),pos0:h.part.pos.slice()}; cvs.style.cursor='move';
+    } else if(tool==='rotPart') startRotDrag(h.part,'view',e);
+    else startScaleDrag(h.part,'all',e);
+    return;
+  }
   beginStroke(); applyTool(h); drag={mode:'paint',last:h};
   if(!continuous()){ endStroke(); drag={mode:'none'}; }
 });
 cvs.addEventListener('pointermove',e=>{
   if(ptrs.has(e.pointerId)) ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
-  if(!drag){ const g=hitGizmo(e); highlightGizmo(g?g.axis:null); cvs.style.cursor = g ? 'pointer' : tool==='rotate' ? 'grab' : (hit3D(e) ? (tool==='move'?'move':'crosshair') : 'grab'); return; }
+  if(!drag){
+    const g=hitGizmo(e); highlightGizmo(g?g.axis:null);
+    const over=!g && tool!=='rotate' && hit3D(e);
+    cvs.style.cursor = g ? 'pointer' : over ? ({move:'move',rotPart:'grab',scalePart:'nesw-resize'}[tool]||'crosshair') : 'grab';
+    return;
+  }
   if(drag.mode==='pinch' && ptrs.size===2){ orbit.dist=Math.min(16,Math.max(2.2,drag.z*drag.d/pinchDist())); updateCamera(); return; }
   if(drag.mode==='rotate'){
     const dx=e.clientX-drag.x, dy=e.clientY-drag.y; drag.x=e.clientX; drag.y=e.clientY;
     orbit.theta-=dx*0.006; orbit.phi=Math.min(Math.PI-0.12,Math.max(0.12,orbit.phi-dy*0.006)); updateCamera();
   } else if(drag.mode==='axis'){
-    setRay(e); const t=axisParam(drag.axis); if(t===null) return; const i={x:0,y:1,z:2}[drag.axis]; const p=drag.part;
+    setRay(e); const t=axisParam(drag.axis,drag.origin); if(t===null) return; const i={x:0,y:1,z:2}[drag.axis]; const p=drag.part;
     p.pos[i]=drag.pos0[i]+(t-drag.t0); p.group.position.set(...p.pos); if(i===1) renderPartCtl();
+  } else if(drag.mode==='rotPart'){
+    let theta=0;
+    if(drag.linear){
+      theta=((e.clientX-drag.x0)*drag.ux+(e.clientY-drag.y0)*drag.uy)*0.012;
+    } else {
+      const a=Math.atan2(-(e.clientY-drag.c.y),e.clientX-drag.c.x);
+      let d=a-drag.prevA; while(d>Math.PI) d-=2*Math.PI; while(d<-Math.PI) d+=2*Math.PI;
+      drag.prevA=a; drag.ang+=d; theta=drag.ang*drag.sign;
+    }
+    if(Math.abs(theta)<1e-7){ drag.part.rot=drag.rot0.slice(); }
+    else {
+      const q=new THREE.Quaternion().setFromAxisAngle(drag.axisVec,theta).multiply(drag.q0);
+      const eu=new THREE.Euler().setFromQuaternion(q,'XYZ');
+      drag.part.rot=[eu.x,eu.y,eu.z];
+    }
+    drag.part.group.rotation.set(...drag.part.rot); updateGizmo();
+  } else if(drag.mode==='scalePart'){
+    const p=drag.part, s0=drag.size0, cl=v=>Math.min(3,Math.max(0.2,Math.round(v*100)/100));
+    let next;
+    if(drag.ax==='all'){
+      const d=Math.hypot(e.clientX-drag.c.x,e.clientY-drag.c.y);
+      const kMin=Math.max(0.2/s0[0],0.2/s0[1],0.2/s0[2]), kMax=Math.min(3/s0[0],3/s0[1],3/s0[2]);
+      const k=Math.min(kMax,Math.max(kMin,1+(d-drag.d0)/drag.denom));
+      next=s0.map(v=>cl(v*k));
+    } else {
+      setRay(e); const t=axisParam(drag.axisVec,drag.origin); if(t===null) return;
+      next=s0.slice(); next[drag.idx]=cl(s0[drag.idx]*(1+(t-drag.t0)/drag.denom));
+    }
+    if(drag.faces0 || Math.hypot(next[0]-s0[0],next[1]-s0[1],next[2]-s0[2])>=1e-4){
+      if(!drag.faces0) drag.faces0=snapFaces(p);
+      p.size=next; p.group.scale.set(p.size[0]/s0[0],p.size[1]/s0[1],p.size[2]/s0[2]); renderPartCtl();
+    }
   } else if(drag.mode==='paint'){
     const h=hit3D(e); if(h){ strokeTo(drag.last,h); drag.last=h; } else drag.last=null;
   } else if(drag.mode==='move'){
@@ -701,39 +1028,72 @@ cvs.addEventListener('pointermove',e=>{
     p.pos[0]=drag.pos0[0]+lp.x-drag.start.x; p.pos[2]=drag.pos0[2]+lp.z-drag.start.z; p.group.position.set(...p.pos);
   }
 });
-function up(e){ ptrs.delete(e.pointerId); if(drag && drag.mode==='paint') endStroke(); if(drag && (drag.mode==='move'||drag.mode==='axis')){ recenter(); netDirty=true; saveSoon(); } if(!ptrs.size){ drag=null; cvs.style.cursor=''; } }
+function up(e){ ptrs.delete(e.pointerId); commitDrag(); if(!ptrs.size){ drag=null; cvs.style.cursor=''; highlightGizmo(null); } }
 cvs.addEventListener('pointerup',up); cvs.addEventListener('pointercancel',up);
 cvs.addEventListener('wheel',e=>{ e.preventDefault(); zoom(e.deltaY>0?1.08:1/1.08); },{passive:false});
 $('zoomIn').onclick=()=>zoom(1/1.15);
 $('zoomOut').onclick=()=>zoom(1.15);
 $('resetView').onclick=resetView;
 
-// ---------- gizmo (move arrows) ----------
+// ---------- gizmo (move / rotate / scale) ----------
+const AX_COLS={x:0xe0453f,y:0x4caf50,z:0x3b82f6};
 const gizmo=new THREE.Group(); gizmo.visible=false; scene.add(gizmo);
-const gizmoParts={};
-['x','y','z'].forEach(ax=>{
-  const col={x:0xe0453f,y:0x4caf50,z:0x3b82f6}[ax];
-  const mat=new THREE.MeshBasicMaterial({color:col,depthTest:false,transparent:true,opacity:0.95});
-  const g=new THREE.Group();
-  const shaft=new THREE.Mesh(new THREE.CylinderGeometry(0.035,0.035,0.9,12),mat); shaft.position.y=0.45;
-  const cone=new THREE.Mesh(new THREE.ConeGeometry(0.11,0.3,16),mat); cone.position.y=1.05;
-  const hitm=new THREE.Mesh(new THREE.CylinderGeometry(0.28,0.28,1.3,8),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthTest:false,depthWrite:false})); hitm.position.y=0.62; hitm.userData.axis=ax;
-  g.add(shaft,cone,hitm); g.renderOrder=999; shaft.renderOrder=999; cone.renderOrder=999;
+const moveGroup=new THREE.Group(), rotGroup=new THREE.Group(), scaleGroup=new THREE.Group();
+const scaleAxes=new THREE.Group(), rotView=new THREE.Group(), scaleView=new THREE.Group();
+gizmo.add(moveGroup,rotGroup,scaleGroup); rotGroup.add(rotView); scaleGroup.add(scaleAxes,scaleView);
+const moveParts={}, rotParts={}, scaleParts={};
+const gMat=col=>new THREE.MeshBasicMaterial({color:col,depthTest:false,transparent:true,opacity:0.95});
+const hMat=()=>new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthTest:false,depthWrite:false});
+function addAxisHandle(parent,map,ax,tipGeo,tipY,shaftLen,hitLen){
+  const col=AX_COLS[ax], mat=gMat(col), g=new THREE.Group();
+  const shaft=new THREE.Mesh(new THREE.CylinderGeometry(0.035,0.035,shaftLen,12),mat); shaft.position.y=shaftLen/2;
+  const tip=new THREE.Mesh(tipGeo,mat); tip.position.y=tipY;
+  const hit=new THREE.Mesh(new THREE.CylinderGeometry(0.26,0.26,hitLen,8),hMat()); hit.position.y=hitLen/2; hit.userData.axis=ax;
+  g.add(shaft,tip,hit); g.renderOrder=shaft.renderOrder=tip.renderOrder=999;
   if(ax==='x') g.rotation.z=-Math.PI/2; if(ax==='z') g.rotation.x=Math.PI/2;
-  gizmo.add(g); gizmoParts[ax]={mat,col,hit:hitm};
-});
-function updateGizmo(){
-  if(mode!=='build'||!selected||tool!=='move'){ gizmo.visible=false; return; }
-  gizmo.visible=true; selected.group.getWorldPosition(gizmo.position);
-  const s=orbit.dist*0.075; gizmo.scale.set(s,s,s);
+  parent.add(g); map[ax]={mat,col,hit};
 }
-function highlightGizmo(ax){ Object.entries(gizmoParts).forEach(([k,v])=>v.mat.color.set(k===ax?0xf2c94c:v.col)); }
-function hitGizmo(e){ if(!gizmo.visible||tool!=='move') return null; setRay(e); const hs=ray.intersectObjects(Object.values(gizmoParts).map(v=>v.hit)); return hs.length?{axis:hs[0].object.userData.axis}:null; }
+function addRingHandle(parent,map,ax,col,rad,tube,hitTube,rx,ry){
+  const mat=gMat(col), g=new THREE.Group();
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(rad,tube,10,48),mat);
+  const hit=new THREE.Mesh(new THREE.TorusGeometry(rad,hitTube,8,28),hMat()); hit.userData.axis=ax;
+  g.add(ring,hit); g.renderOrder=ring.renderOrder=999; g.rotation.set(rx,ry,0);
+  parent.add(g); map[ax]={mat,col,hit};
+}
+['x','y','z'].forEach(ax=>{
+  addAxisHandle(moveGroup,moveParts,ax,new THREE.ConeGeometry(0.11,0.3,16),1.05,0.9,1.3);
+  addAxisHandle(scaleAxes,scaleParts,ax,new THREE.BoxGeometry(0.18,0.18,0.18),1.02,0.95,1.15);
+});
+addRingHandle(rotGroup,rotParts,'x',AX_COLS.x,1.15,0.028,0.16,0,Math.PI/2);
+addRingHandle(rotGroup,rotParts,'y',AX_COLS.y,1.15,0.028,0.16,Math.PI/2,0);
+addRingHandle(rotGroup,rotParts,'z',AX_COLS.z,1.15,0.028,0.16,0,0);
+addRingHandle(rotView,rotParts,'view',0xf1f5f9,1.34,0.024,0.14,0,0);
+{ const sph=new THREE.Mesh(new THREE.SphereGeometry(1.12,20,14),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.08,depthTest:false,depthWrite:false})); sph.renderOrder=998; rotGroup.add(sph); }
+addRingHandle(scaleView,scaleParts,'all',0xf1f5f9,1.32,0.025,0.13,0,0);
+const gizmoMaps={move:moveParts,rotPart:rotParts,scalePart:scaleParts};
+function toScreen(v){ camera.updateMatrixWorld(); const p=v.clone().project(camera), r=cvs.getBoundingClientRect(); return {x:(p.x*0.5+0.5)*r.width+r.left,y:(-p.y*0.5+0.5)*r.height+r.top}; }
+function updateGizmo(){
+  const show=mode==='build'&&!!selected&&isBuildTool(tool);
+  gizmo.visible=show; if(!show) return;
+  selected.group.getWorldPosition(gizmo.position);
+  const s=orbit.dist*0.075; gizmo.scale.set(s,s,s);
+  moveGroup.visible=tool==='move'; rotGroup.visible=tool==='rotPart'; scaleGroup.visible=tool==='scalePart';
+  if(tool==='rotPart') rotView.quaternion.copy(camera.quaternion);
+  if(tool==='scalePart'){ scaleAxes.rotation.copy(selected.group.rotation); scaleView.quaternion.copy(camera.quaternion); }
+  gizmo.updateMatrixWorld(true);
+}
+function highlightGizmo(ax){ const mp=gizmoMaps[tool]; if(!mp) return; Object.entries(mp).forEach(([k,v])=>v.mat.color.set(k===ax?0xf2c94c:v.col)); }
+function hitGizmo(e){
+  if(!gizmo.visible||!gizmoMaps[tool]) return null;
+  setRay(e); updateGizmo();
+  const hs=ray.intersectObjects(Object.values(gizmoMaps[tool]).map(v=>v.hit));
+  return hs.length?{axis:hs[0].object.userData.axis}:null;
+}
 // parameter along world axis (through gizmo origin) closest to the current mouse ray
-function axisParam(ax){
-  const D=new THREE.Vector3(ax==='x'?1:0,ax==='y'?1:0,ax==='z'?1:0), O=gizmo.position.clone();
+function axisParam(ax,origin=gizmo.position){
+  const D=typeof ax==='string'?new THREE.Vector3(ax==='x'?1:0,ax==='y'?1:0,ax==='z'?1:0):ax.clone().normalize(), O=origin;
   const Rd=ray.ray.direction, w=O.clone().sub(ray.ray.origin);
-  const b=D.dot(Rd), d=D.dot(w), e2=Rd.dot(w), den=1-b*b; if(Math.abs(den)<1e-6) return null;
+  const b=D.dot(Rd), d=D.dot(w), e2=Rd.dot(w), den=1-b*b; if(Math.abs(den)<1e-3) return null;
   return (b*e2-d)/den;
 }
 
@@ -747,12 +1107,12 @@ function pageChrome(ctx,k,title,pageNo,pageTotal){
   ctx.font=`700 ${5*k}px Rubik, sans-serif`; ctx.textAlign='left';
   ctx.fillText(nameText(), 10*k, 14*k);
   ctx.font=`500 ${3.6*k}px Rubik, sans-serif`; ctx.textAlign='right'; ctx.fillStyle='#5d6b7a';
-  ctx.fillText(title+(pageTotal>1?`  ·  лист ${pageNo} из ${pageTotal}`:''), 200*k, 14*k);
+  ctx.fillText(title+(pageTotal>1?t('sheetOf')(pageNo,pageTotal):''), 200*k, 14*k);
   const lw=0.3*k, dash=[1.6*k,1.2*k], y=287*k;
   ctx.font=`400 ${3.2*k}px Rubik, sans-serif`; ctx.textAlign='left'; ctx.fillStyle='#333'; ctx.lineWidth=lw;
-  ctx.beginPath(); ctx.setLineDash([]); ctx.moveTo(10*k,y-1*k); ctx.lineTo(20*k,y-1*k); ctx.strokeStyle='#222'; ctx.stroke(); ctx.fillText('вырезать',22*k,y);
-  ctx.beginPath(); ctx.setLineDash(dash); ctx.moveTo(48*k,y-1*k); ctx.lineTo(58*k,y-1*k); ctx.strokeStyle='#666'; ctx.stroke(); ctx.setLineDash([]); ctx.fillText('согнуть',60*k,y);
-  ctx.fillStyle='#dcdcdc'; ctx.fillRect(84*k,y-3*k,8*k,4*k); ctx.fillStyle='#333'; ctx.fillText('мазать клеем',94*k,y);
+  ctx.beginPath(); ctx.setLineDash([]); ctx.moveTo(10*k,y-1*k); ctx.lineTo(20*k,y-1*k); ctx.strokeStyle='#222'; ctx.stroke(); ctx.fillText(t('cut'),22*k,y);
+  ctx.beginPath(); ctx.setLineDash(dash); ctx.moveTo(48*k,y-1*k); ctx.lineTo(58*k,y-1*k); ctx.strokeStyle='#666'; ctx.stroke(); ctx.setLineDash([]); ctx.fillText(t('fold'),60*k,y);
+  ctx.fillStyle='#dcdcdc'; ctx.fillRect(84*k,y-3*k,8*k,4*k); ctx.fillStyle='#333'; ctx.fillText(t('glue'),94*k,y);
 }
 // toS maps net coords (units) to canvas px
 function drawNet(ctx,k,part,toS,label){
@@ -784,7 +1144,7 @@ function drawNet(ctx,k,part,toS,label){
     }
   });
   ctx.setLineDash([]);
-  if(label){ ctx.font=`500 ${3.4*k}px Rubik, sans-serif`; ctx.textAlign='left'; ctx.fillStyle='#1b2733'; ctx.fillText(label.text,label.x,label.y); }
+  if(label){ ctx.font=`500 ${3.4*k}px Rubik, sans-serif`; ctx.textAlign='left'; ctx.fillStyle='#1b2733'; if(label.maxW) ctx.fillText(label.text,label.x,label.y,label.maxW); else ctx.fillText(label.text,label.x,label.y); }
 }
 // placement helper: net rotated by fit.theta, scaled m mm/unit, top-left corner at (x0,y0) mm
 function placer(part,m,x0,y0,k){
@@ -795,7 +1155,7 @@ function placer(part,m,x0,y0,k){
 
 // ----- shape tab page -----
 function shapePlacer(k){ const fit=cur.net.fit, m=fit.s*sizePct; return placer(cur,m,PAGE.ax+(PAGE.aw-fit.w*m)/2,PAGE.ay+(PAGE.ah-fit.h*m)/2,k); }
-function renderShapePage(ctx,k){ pageChrome(ctx,k,cur.def.name+' · с Новым годом!',1,1); drawNet(ctx,k,cur,shapePlacer(k).toS); }
+function renderShapePage(ctx,k){ pageChrome(ctx,k,tName(cur.def.name)+t('shapeSub'),1,1); drawNet(ctx,k,cur,shapePlacer(k).toS); }
 const pageCv=$('page'); let pageK=1;
 function drawPreview(){
   const w=pageCv.clientWidth; if(!w||!cur) return;
@@ -803,7 +1163,7 @@ function drawPreview(){
   if(pageCv.width!==W){ pageCv.width=W; pageCv.height=H; }
   pageK=W/210; renderShapePage(pageCv.getContext('2d'),pageK);
 }
-new ResizeObserver(()=>{ netDirty=true; }).observe(pageCv);
+const ro=new ResizeObserver(()=>{ netDirty=true; }); ro.observe(pageCv); ro.observe($('pages'));
 function hitPage(e){
   const r=pageCv.getBoundingClientRect(), X=(e.clientX-r.left)*pageCv.width/r.width, Y=(e.clientY-r.top)*pageCv.height/r.height;
   const q=shapePlacer(pageK).toN(X,Y);
@@ -822,20 +1182,24 @@ pageCv.addEventListener('pointerdown',e=>{
 pageCv.addEventListener('pointermove',e=>{ if(!pdrag) return; const h=hitPage(e); if(h){ strokeTo(pdrag.last,h); pdrag.last=h; } else pdrag.last=null; });
 const pup=()=>{ if(pdrag){ endStroke(); pdrag=null; } };
 pageCv.addEventListener('pointerup',pup); pageCv.addEventListener('pointercancel',pup);
+const fmtCm=cm=>'≈ '+(lang==='ru'?cm.toFixed(1).replace('.',','):cm.toFixed(1))+' '+t('unit');
 function updateDim(){
   if(!cur) return; const v=cur.P.verts; let lo=[1e9,1e9,1e9], hi=[-1e9,-1e9,-1e9];
   v.forEach(p=>{ for(let i=0;i<3;i++){ lo[i]=Math.min(lo[i],p[i]); hi[i]=Math.max(hi[i],p[i]); } });
   const mm=Math.max(hi[0]-lo[0],hi[1]-lo[1],hi[2]-lo[2])*cur.net.fit.s*sizePct;
-  $('dimOut').textContent='≈ '+(mm/10).toFixed(1).replace('.',',')+' см';
+  $('dimOut').textContent=fmtCm(mm/10);
 }
 
 // ----- build tab pages: pack nets onto A4 sheets -----
 function layoutPages(){
   if(!parts.length) return {pages:[],m:0,clamped:false};
   const b=modelBounds(), h=Math.max(0.01,b.hi[1]-b.lo[1]);
-  let m=targetHeightCm*10/h, clamped=false;
-  parts.forEach(p=>{ if(p.net.fit.s<m){ m=p.net.fit.s; clamped=true; } });
   const GAP=5, LAB=6;
+  let m=targetHeightCm*10/h, clamped=false;
+  parts.forEach(p=>{
+    const maxS=Math.min(PAGE.aw/Math.max(1e-6,p.net.fit.w), (PAGE.ah-LAB)/Math.max(1e-6,p.net.fit.h));
+    if(maxS<m){ m=maxS; clamped=true; }
+  });
   const items=parts.map(p=>({part:p,w:p.net.fit.w*m,h:p.net.fit.h*m+LAB})).sort((a,b)=>b.h-a.h);
   const pages=[]; let pg=null, x=0, y=0, rowH=0;
   const newPage=()=>{ pg={items:[]}; pages.push(pg); x=PAGE.ax; y=PAGE.ay; rowH=0; };
@@ -848,15 +1212,15 @@ function layoutPages(){
   return {pages,m,clamped};
 }
 function renderBuildPage(ctx,k,layout,pi){
-  pageChrome(ctx,k,'Фигурка из деталей',pi+1,layout.pages.length);
-  for(const it of layout.pages[pi].items){ const pl=placer(it.part,layout.m,it.x,it.y,k); drawNet(ctx,k,it.part,pl.toS,{text:it.part.name,x:it.lx*k,y:it.ly*k}); }
+  pageChrome(ctx,k,t('buildTitle'),pi+1,layout.pages.length);
+  for(const it of layout.pages[pi].items){ const pl=placer(it.part,layout.m,it.x,it.y,k); drawNet(ctx,k,it.part,pl.toS,{text:it.part.name,x:it.lx*k,y:it.ly*k,maxW:(PAGE.w-5-it.lx)*k}); }
 }
 function drawBuildPages(){
   const layout=layoutPages(), box=$('pages');
   $('pageCount').textContent=layout.pages.length?`— ${layout.pages.length}`:'';
-  $('fitNote').textContent= layout.clamped ? 'Размер уменьшен, чтобы самая большая деталь влезла на лист.' : '';
+  $('fitNote').textContent= layout.clamped ? t('fitNote') : '';
   const b=modelBounds(), hh=(b.hi[1]-b.lo[1])*layout.m/10;
-  $('hOut').textContent= parts.length ? '≈ '+hh.toFixed(1).replace('.',',')+' см' : '';
+  $('hOut').textContent= parts.length ? fmtCm(hh) : '';
   while(box.children.length>layout.pages.length) box.lastChild.remove();
   while(box.children.length<layout.pages.length){ const c=document.createElement('canvas'); c.className='page'; box.appendChild(c); }
   const w=box.clientWidth||300, dpr=Math.min(window.devicePixelRatio||1,2), W=Math.round(w*dpr), H=Math.round(W*297/210);
@@ -867,38 +1231,42 @@ $('height').oninput=e=>{ targetHeightCm=+e.target.value; netDirty=true; saveSoon
 // ---------- save / load (localStorage + file) ----------
 const SAVE_KEY='paper-workshop-v1';
 function serialize(){
-  const shape={current:cur?cur.def.id:'cube', models:{}};
-  cache.forEach((p,id)=>{ shape.models[id]=p.faces.map(f=>f.cv.toDataURL('image/png')); });
-  return { v:1, name:$('name').value, mode, shape, build:{ height:targetHeightCm, parts:parts.map(p=>({type:p.type,name:p.name,size:p.size,pos:p.pos,rot:p.rot,faces:p.faces.map(f=>f.cv.toDataURL('image/png'))})) } };
+  const shape={current:cur?cur.def.id:'cube', scale:Math.round(sizePct*100), models:{}, bases:{}};
+  cache.forEach((p,id)=>{ shape.models[id]=p.faces.map(f=>f.cv.toDataURL('image/png')); shape.bases[id]=p.faces.map(f=>f.base); });
+  return { v:1, name:$('name').value, mode, shape, build:{ height:targetHeightCm, parts:parts.map(p=>({type:p.type,name:p.name,size:p.size,pos:p.pos,rot:p.rot,faces:p.faces.map(f=>f.cv.toDataURL('image/png')),bases:p.faces.map(f=>f.base)})) } };
 }
 let saveTimer=null;
-function saveSoon(){ clearTimeout(saveTimer); saveTimer=setTimeout(saveNow,900); }
+function saveSoon(){ if(!ready) return; clearTimeout(saveTimer); saveTimer=setTimeout(saveNow,900); }
 function saveNow(){
   if(!ready) return; const st=$('saveStatus');
-  try{ localStorage.setItem(SAVE_KEY,JSON.stringify(serialize())); st.textContent='Сохранено'; st.className='note'; }
-  catch(err){ st.textContent='Не сохранилось: слишком много деталей для браузера. Скачай файл.'; st.className='note warn'; }
+  try{ localStorage.setItem(SAVE_KEY,JSON.stringify(serialize())); saveStatusKey='saveOk'; st.textContent=t('saveOk'); st.className='note'; }
+  catch(err){ saveStatusKey='saveWarn'; st.textContent=t('saveWarn'); st.className='note warn'; }
 }
-function loadImage(src,F){ const im=new Image(); im.onload=()=>{ F.ctx.drawImage(im,0,0,F.W,F.H); F.tex.needsUpdate=true; netDirty=true; }; im.src=src; }
+function loadImage(src,F,base){ if(base) F.base=base; const im=new Image(); im.onload=()=>{ F.ctx.drawImage(im,0,0,F.W,F.H); F.tex.needsUpdate=true; netDirty=true; }; im.src=src; }
 function restore(data){
+  if(!data||typeof data!=='object'||Array.isArray(data)) throw new Error('Invalid file');
   ready=false;
   try{
+    undoStack.length=0; redoStack.length=0; pending=null; updateUndo();
     $('name').value=data.name||'';
     parts.slice().forEach(removePart); partSeq=0;
     const b=data.build||{}; targetHeightCm=b.height||14; $('height').value=targetHeightCm;
-    (b.parts||[]).forEach(pd=>{ const p=addPart(pd.type,{name:pd.name,size:pd.size,pos:pd.pos,rot:pd.rot}); (pd.faces||[]).forEach((src,i)=>{ if(p.faces[i]) loadImage(src,p.faces[i]); }); });
+    (b.parts||[]).forEach(pd=>{ if(!PRIMS.some(p=>p.id===pd.type)) return; const p=addPart(pd.type,{name:pd.name,size:pd.size,pos:pd.pos,rot:pd.rot}); (pd.faces||[]).forEach((src,i)=>{ if(p.faces[i]) loadImage(src,p.faces[i],pd.bases&&pd.bases[i]); }); });
     select(null);
+    cache.forEach(p=>{ disposeGroup(p.group); root.remove(p.group); }); cache.clear(); cur=null;
     const s=data.shape||{};
-    Object.entries(s.models||{}).forEach(([id,imgs])=>{ const def=MODELS.find(m=>m.id===id); if(!def) return; loadModel(def); imgs.forEach((src,i)=>{ if(cur.faces[i]) loadImage(src,cur.faces[i]); }); });
+    const sc=Math.min(100,Math.max(50,s.scale||100)); $('scale').value=sc; sizePct=sc/100;
+    Object.entries(s.models||{}).forEach(([id,imgs])=>{ const def=MODELS.find(m=>m.id===id); if(!def) return; loadModel(def); const bs=s.bases&&s.bases[id]; (imgs||[]).forEach((src,i)=>{ if(cur.faces[i]) loadImage(src,cur.faces[i],bs&&bs[i]); }); });
     loadModel(MODELS.find(m=>m.id===s.current)||MODELS[0]);
     setMode(data.mode==='build'?'build':'shape');
-  } finally { ready=true; }
+  } finally { ready=true; updateUndo(); }
 }
-function loadSaved(){ try{ const raw=localStorage.getItem(SAVE_KEY); if(raw) restore(JSON.parse(raw)); }catch(err){ console.warn(err); } }
+function loadSaved(){ try{ const raw=localStorage.getItem(SAVE_KEY); if(raw){ restore(JSON.parse(raw)); return true; } }catch(err){ console.warn(err); } return false; }
 $('dlFile').onclick=()=>{
   const blob=new Blob([JSON.stringify(serialize())],{type:'application/json'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=((nameText()||'моя-работа').replace(/\s+/g,'-'))+'.paper.json'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=((nameText()||t('dlFallback')).replace(/\s+/g,'-'))+'.paper.json'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
 };
-$('openFile').onchange=e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{ try{ restore(JSON.parse(r.result)); saveSoon(); }catch(err){ alert('Не удалось открыть файл'); } }; r.readAsText(f); e.target.value=''; };
+$('openFile').onchange=e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{ try{ restore(JSON.parse(r.result)); saveSoon(); }catch(err){ if(!cur) loadModel(MODELS[0]); alert(t('openErr')); } }; r.readAsText(f); e.target.value=''; };
 document.addEventListener('visibilitychange',()=>{ if(document.hidden) saveNow(); });
 
 // ---------- print ----------
@@ -914,58 +1282,109 @@ $('printBtn').onclick=()=>{
 };
 
 // ---------- tabs ----------
+function updateModeText(){
+  const build=mode==='build';
+  $('howtoLast').textContent=t(build?'howtoBuild':'howtoShape');
+  $('hint').textContent=t(build?'hintBuild':'hintShape');
+}
 function setMode(m){
+  if(drag){ commitDrag(); drag=null; }
   mode=m; const build=m==='build';
   $('tabShape').setAttribute('aria-selected',!build); $('tabBuild').setAttribute('aria-selected',build);
   $('models').hidden=build; $('adds').hidden=!build; $('shapeRight').hidden=build; $('buildRight').hidden=!build;
   root.visible=!build; broot.visible=build;
-  document.querySelector('[data-tool=move]').hidden=!build;
-  $('howtoLast').textContent= build ? 'Склей каждую деталь отдельно, потом приклей детали друг к другу.' : 'Для ёлочной игрушки продень нитку, пока фигура ещё открыта.';
-  $('hint').textContent= build ? 'Нажми на деталь — появятся стрелки, тяни за них. Крутить сцену — тяни по пустому месту.' : 'Рисуй прямо на фигуре. Чтобы повернуть, тяни по пустому месту.';
+  ['move','rotPart','scalePart'].forEach(t=>document.querySelector(`[data-tool=${t}]`).hidden=!build);
+  updateModeText();
   if(build && tool==='brush') document.querySelector('[data-tool=move]').click();
-  if(!build && tool==='move') document.querySelector('[data-tool=brush]').click();
-  orbit.dist= build?CAM_Z_BUILD:CAM_Z; orbit.target.set(0,0,0); if(build) recenter(); updateCamera(); renderPartCtl(); netDirty=true; saveSoon();
+  if(!build && isBuildTool(tool)) document.querySelector('[data-tool=brush]').click();
+  orbit.dist= build?CAM_Z_BUILD:CAM_Z; orbit.target.set(0,0,0); if(build) recenter(); updateCamera(); updateGizmo(); renderPartCtl(); updateUndo(); netDirty=true; saveSoon();
 }
 $('tabShape').onclick=()=>setMode('shape'); $('tabBuild').onclick=()=>setMode('build');
 
-// ---------- UI ----------
-const mEl=$('models');
-MODELS.forEach(m=>{
-  const b=document.createElement('button'); b.className='model'; b.dataset.id=m.id; b.setAttribute('aria-pressed','false');
-  b.innerHTML=`<span class="ic">${m.icon}</span><span class="nm">${m.name}</span><span class="df" aria-label="сложность ${m.diff} из 3">${'★'.repeat(m.diff)}${'☆'.repeat(3-m.diff)}</span>`;
-  b.onclick=()=>loadModel(m); mEl.appendChild(b);
-});
-PRIMS.forEach(p=>{ const b=document.createElement('button'); b.className='model'; b.innerHTML=`<span class="ic">${p.icon}</span><span class="nm">${p.name}</span>`; b.onclick=()=>addPart(p.id); $('adds').appendChild(b); });
+// ---------- UI & i18n ----------
+function renderShelves(){
+  const mEl=$('models'), aEl=$('adds');
+  document.querySelectorAll('#models .model, #adds .model').forEach(el=>el.remove());
+  MODELS.forEach(m=>{
+    const b=document.createElement('button'); b.className='model'; b.dataset.id=m.id;
+    b.setAttribute('aria-pressed', cur&&cur.def.id===m.id?'true':'false');
+    b.innerHTML=`<span class="ic">${m.icon}</span><span class="nm">${tName(m.name)}</span><span class="df" aria-label="${t('diffAria')(m.diff)}">${'★'.repeat(m.diff)}${'☆'.repeat(3-m.diff)}</span>`;
+    b.onclick=()=>loadModel(m); mEl.appendChild(b);
+  });
+  PRIMS.forEach(p=>{
+    const b=document.createElement('button'); b.className='model';
+    b.innerHTML=`<span class="ic">${p.icon}</span><span class="nm">${tName(p.name)}</span>`;
+    b.onclick=()=>addPart(p.id); aEl.appendChild(b);
+  });
+}
 document.querySelectorAll('.tool').forEach(b=>b.onclick=()=>{
+  if(drag){ commitDrag(); drag=null; }
   tool=b.dataset.tool; document.querySelectorAll('.tool').forEach(x=>x.setAttribute('aria-pressed',x===b));
-  $('stampSect').hidden = tool!=='stamp';
+  $('stampSect').hidden = tool!=='stamp'; highlightGizmo(null); updateGizmo();
 });
 const pal=$('palette');
-function selectColor(c,btn){ color=c; pal.querySelectorAll('.sw').forEach(x=>x.setAttribute('aria-pressed',x===btn)); if(tool==='eraser'||tool==='rotate'||tool==='move'){ document.querySelector('[data-tool=brush]').click(); } }
+function selectColor(c,btn){ color=c; pal.querySelectorAll('.sw').forEach(x=>x.setAttribute('aria-pressed',x===btn)); if(tool==='eraser'||tool==='rotate'||isBuildTool(tool)){ document.querySelector('[data-tool=brush]').click(); } }
 COLORS.forEach(c=>{
-  const b=document.createElement('button'); b.className='sw'; b.style.background=c; b.setAttribute('aria-label','Цвет '+c);
+  const b=document.createElement('button'); b.className='sw'; b.style.background=c; b.setAttribute('aria-label',t('colorSwatch')+c);
   b.setAttribute('aria-pressed', c===color); b.onclick=()=>selectColor(c,b); pal.appendChild(b);
 });
-const cust=document.createElement('label'); cust.className='sw custom'; cust.title='Свой цвет';
-cust.innerHTML='<input type="color" value="#2ec4b6" aria-label="Свой цвет">';
-cust.querySelector('input').addEventListener('input',e=>{ selectColor(e.target.value,null); cust.style.outline='3px solid var(--ink)'; });
+const cust=document.createElement('label'); cust.className='sw custom'; cust.title=t('customColor');
+cust.innerHTML=`<input type="color" value="#2ec4b6" aria-label="${t('customColor')}">`;
+const custIn=cust.querySelector('input');
+custIn.addEventListener('input',e=>{ selectColor(e.target.value,null); cust.style.outline='3px solid var(--ink)'; });
 pal.addEventListener('click',e=>{ if(e.target.closest('.sw:not(.custom)')) cust.style.outline=''; });
 pal.appendChild(cust);
 const stEl=$('stamps');
 STAMPS.forEach(s=>{ const b=document.createElement('button'); b.className='st'; b.textContent=s; b.setAttribute('aria-pressed',s===stamp);
   b.onclick=()=>{ stamp=s; stEl.querySelectorAll('.st').forEach(x=>x.setAttribute('aria-pressed',x===b)); }; stEl.appendChild(b); });
 const sz=$('size'); sz.oninput=()=>{ sizeVal=+sz.value; $('sizeOut').textContent=sz.value; };
-$('scale').oninput=e=>{ sizePct=e.target.value/100; netDirty=true; updateDim(); };
+$('scale').oninput=e=>{ sizePct=e.target.value/100; netDirty=true; updateDim(); saveSoon(); };
 $('name').oninput=()=>{ netDirty=true; saveSoon(); };
 $('undo').onclick=doUndo;
+$('redo').onclick=doRedo;
 $('fillAll').onclick=()=>fillAll(color);
-$('clear').onclick=()=>fillAll('#ffffff');
-window.addEventListener('keydown',e=>{ if(e.target.tagName==='INPUT') return; if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){ e.preventDefault(); doUndo(); } if(mode==='build'&&selected&&(e.key==='Delete'||e.key==='Backspace')) removePart(selected); });
+$('clear').onclick=clearAll;
+function applyLang(){
+  if(typeof document!=='undefined'&&document.documentElement) document.documentElement.lang=lang;
+  document.title=t('appTitle');
+  $('langRu').setAttribute('aria-pressed',lang==='ru');
+  $('langEn').setAttribute('aria-pressed',lang==='en');
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent=t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-aria]').forEach(el=>{ el.setAttribute('aria-label',t(el.dataset.i18nAria)); });
+  document.querySelectorAll('[data-i18n-title]').forEach(el=>{ el.title=t(el.dataset.i18nTitle); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{ el.placeholder=t(el.dataset.i18nPh); });
+  $('saveStatus').textContent=t(saveStatusKey);
+  renderShelves();
+  pal.querySelectorAll('.sw:not(.custom)').forEach((b,i)=>{ if(COLORS[i]) b.setAttribute('aria-label',t('colorSwatch')+COLORS[i]); });
+  cust.title=t('customColor'); if(custIn.setAttribute) custIn.setAttribute('aria-label',t('customColor'));
+  updateModeText(); renderPartCtl(); updateDim(); netDirty=true;
+}
+function setLang(l,persist=true){
+  lang=l==='en'?'en':'ru';
+  if(persist){
+    try{ localStorage.setItem(LANG_KEY,lang); }catch(e){}
+    try{ if(typeof location!=='undefined'&&location.protocol!=='file:'&&typeof history!=='undefined'&&history.replaceState){ const u=new URL(location.href); if(lang==='ru') u.searchParams.delete('lang'); else u.searchParams.set('lang',lang); history.replaceState(null,'',u); } }catch(e){}
+  }
+  applyLang();
+}
+$('langRu').onclick=()=>setLang('ru'); $('langEn').onclick=()=>setLang('en');
+window.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.tagName==='SELECT') return;
+  if((e.ctrlKey||e.metaKey)&&!e.altKey){
+    if(e.code==='KeyZ'||e.key.toLowerCase()==='z'){ e.preventDefault(); if(e.shiftKey) doRedo(); else doUndo(); }
+    else if((e.code==='KeyY'||e.key.toLowerCase()==='y')&&!e.shiftKey){ e.preventDefault(); doRedo(); }
+  } else if(!e.ctrlKey&&!e.metaKey&&!e.altKey&&mode==='build'){
+    const hotTool={KeyG:'move',KeyR:'rotPart',KeyS:'scalePart'}[e.code];
+    if(hotTool){ e.preventDefault(); document.querySelector(`[data-tool=${hotTool}]`).click(); }
+    if(selected&&(e.key==='Delete'||e.key==='Backspace')) removePart(selected);
+  }
+});
 if(document.fonts) document.fonts.ready.then(()=>{ netDirty=true; });
 
 let ready=false;
-loadModel(MODELS[0]);
-loadSaved(); ready=true;
+if(!loadSaved()) loadModel(MODELS[0]);
+applyLang();
+ready=true;
 loop();
 })();
 </script>
