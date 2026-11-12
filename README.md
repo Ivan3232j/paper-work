@@ -11,7 +11,7 @@ Zero build step — runs from a single [`index.html`](index.html) file using van
 ## Features
 
 - **Two modes**:
-  - **Shapes (`Фигурка`)**: 8 ready-made 3D models (Cube, Pyramid, House, Crystal, Pine tree, Lantern, Icicle, Sphere) with live A4 sheet scaling (`50%–100%`).
+  - **Shapes (`Фигурка`)**: 16 ready-made 3D models (Cube, Pyramid, House, Crystal, Pine tree, Lantern, Icicle, Sphere, Tetrahedron, Tent, Cup, Barrel, Diamond, Rocket, Chest, Tower) with live A4 sheet scaling (`50%–100%`).
   - **Builder (`Конструктор`)**: assemble custom multi-part crafts from 6 centered primitives (Box, Cylinder, Sphere, Cone, Pyramid, Wedge), load the built-in bear preset, duplicate or mirror parts, rename parts, and pack nets automatically across one or more A4 pages for a chosen target height (`5–30 cm`).
 - **Blender-style 3D gizmos (Builder mode)**:
   - **`G` — Move (`Двигать детали`)**: drag along the floor plane or X/Y/Z axis arrows.
