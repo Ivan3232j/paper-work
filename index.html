@@ -489,7 +489,7 @@ const PRIMS = [
 const I18N = {
   ru:{
     appTitle:'Бумажная мастерская', tabShape:'Фигурка', tabBuild:'Конструктор',
-    saveIdle:'Работа сохраняется сама', saveOk:'Сохранено', saveWarn:'Не сохранилось: слишком много деталей для браузера. Скачай файл.',
+    saveIdle:'Работа сохраняется сама', saveOk:'Сохранено', saveWarn:'Не сохранилось: слишком много деталей для браузера. Скачай файл.', saveBlocked:'Браузер не даёт сохранять автоматически (например, приватный режим). Скачай файл.',
     dlFile:'💾 Скачать файл', openFile:'📂 Открыть файл', modelsAria:'Фигуры', addsAria:'Детали',
     addLeadTitle:'Добавить деталь', addLeadSub:'появится в центре сцены', toolsTitle:'Чем работаем',
     toolMove:'Двигать детали', moveTitle:'Переместить (G)', toolRot:'Поворот', rotTitle:'Поворот (R)',
@@ -525,7 +525,7 @@ const I18N = {
   },
   en:{
     appTitle:'Paper Workshop', tabShape:'Shapes', tabBuild:'Builder',
-    saveIdle:'Auto-saved locally', saveOk:'Saved', saveWarn:'Not saved: too many parts for browser storage. Download the file.',
+    saveIdle:'Auto-saved locally', saveOk:'Saved', saveWarn:'Not saved: too many parts for browser storage. Download the file.', saveBlocked:'This browser blocks auto-save (e.g. private mode). Download the file.',
     dlFile:'💾 Save file', openFile:'📂 Open file', modelsAria:'Shapes', addsAria:'Parts',
     addLeadTitle:'Add a part', addLeadSub:'appears at scene center', toolsTitle:'Tools',
     toolMove:'Move parts', moveTitle:'Move (G)', toolRot:'Rotate', rotTitle:'Rotate (R)',
@@ -1240,7 +1240,7 @@ function saveSoon(){ if(!ready) return; clearTimeout(saveTimer); saveTimer=setTi
 function saveNow(){
   if(!ready) return; const st=$('saveStatus');
   try{ localStorage.setItem(SAVE_KEY,JSON.stringify(serialize())); saveStatusKey='saveOk'; st.textContent=t('saveOk'); st.className='note'; }
-  catch(err){ saveStatusKey='saveWarn'; st.textContent=t('saveWarn'); st.className='note warn'; }
+  catch(err){ const full=err&&(err.name==='QuotaExceededError'||err.name==='NS_ERROR_DOM_QUOTA_REACHED'||err.code===22); saveStatusKey=full?'saveWarn':'saveBlocked'; st.textContent=t(saveStatusKey); st.className='note warn'; }
 }
 function loadImage(src,F,base){ if(base) F.base=base; const im=new Image(); im.onload=()=>{ F.ctx.drawImage(im,0,0,F.W,F.H); F.tex.needsUpdate=true; netDirty=true; }; im.src=src; }
 function restore(data){
