@@ -38,58 +38,63 @@ button{ cursor:pointer; }
 
 .app{ max-width:1500px; margin:0 auto; padding:16px 18px 28px; }
 header{ display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:14px; }
-h1{ margin:0; font-size:30px; font-weight:800; letter-spacing:-0.02em; line-height:1.05; }
+h1{ margin:0; font-size:28px; font-weight:800; letter-spacing:-0.02em; line-height:1.1; display:flex; align-items:center; gap:8px; }
 h1 .flake{ color:var(--red); }
 .hdr-right{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
 .save{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
 .save .mini{ padding:7px 10px; background:var(--panel); }
 .tabs{ display:flex; gap:4px; padding:4px; background:var(--panel); border-radius:999px; }
-.tab{ padding:8px 18px; border:0; border-radius:999px; background:transparent; font-weight:700; font-size:15px; color:var(--muted); }
-.tab[aria-selected="true"], .tab[aria-pressed="true"]{ background:var(--spruce); color:#fff; }
+.tab{ padding:9px 20px; border:0; border-radius:999px; background:transparent; font-weight:700; font-size:15px; color:var(--muted); transition:all .15s ease; }
+.tab[aria-selected="true"], .tab[aria-pressed="true"]{ background:var(--spruce); color:#fff; box-shadow:0 3px 10px rgba(30,122,70,.25); }
 .lang .tab{ padding:6px 11px; font-size:13px; }
 
 .models{ display:flex; gap:8px; overflow-x:auto; padding:2px 2px 10px; margin-bottom:6px; }
-.model{ flex:0 0 auto; display:flex; flex-direction:column; align-items:center; gap:2px; min-width:92px; padding:10px 10px 8px; border:2px solid transparent; border-radius:14px; background:var(--panel); }
-.model .ic{ font-size:28px; line-height:1; }
+.model{ flex:0 0 auto; display:flex; flex-direction:column; align-items:center; gap:2px; min-width:96px; padding:12px 10px 10px; border:2px solid transparent; border-radius:16px; background:var(--panel); transition:all .15s ease; }
+.model:hover{ transform:translateY(-2px); }
+.model .ic{ font-size:30px; line-height:1; }
 .model .nm{ font-weight:700; font-size:14px; }
 .model .df{ font-size:11px; color:var(--gold); letter-spacing:1px; }
-.model[aria-pressed="true"]{ border-color:var(--red); }
+.model[aria-pressed="true"]{ border-color:var(--red); box-shadow:0 4px 12px rgba(214,47,47,.2); }
 .models .lead{ flex:0 0 auto; align-self:center; color:var(--muted); font-size:13px; padding-right:6px; }
 .models .lead b{ display:block; color:var(--ink); font-size:14px; }
 
-.work{ display:grid; grid-template-columns:240px minmax(0,1fr) 330px; gap:14px; align-items:start; }
+.work{ display:grid; grid-template-columns:260px minmax(0,1fr) 330px; gap:14px; align-items:start; }
 .panel{ background:var(--panel); border-radius:16px; padding:14px; }
 .panel h2{ margin:0 0 10px; font-size:16px; font-weight:700; }
 
 .viewer{ position:relative; background:var(--viewer); border-radius:20px; height:min(72vh,680px); min-height:380px; overflow:hidden; }
 .viewer canvas{ display:block; width:100%; height:100%; touch-action:none; }
-.hint{ position:absolute; left:14px; bottom:12px; right:14px; font-size:13px; color:var(--muted); pointer-events:none; }
+.hint{ position:absolute; left:14px; bottom:12px; right:14px; font-size:13px; font-weight:500; color:var(--muted); pointer-events:none; }
 .vbtns{ position:absolute; right:10px; top:10px; display:flex; flex-direction:column; gap:6px; }
 .vbtns button{ width:38px; height:38px; border-radius:12px; border:0; background:var(--panel); font-size:18px; }
 
-.tools{ display:grid; grid-template-columns:1fr 1fr; gap:6px; }
-.tool{ display:flex; align-items:center; gap:5px; min-width:0; padding:8px 7px; border-radius:12px; border:2px solid transparent; background:var(--chip); font-size:14px; font-weight:500; }
-.tool span{ font-size:18px; }
-.tool[aria-pressed="true"]{ border-color:var(--spruce); background:var(--panel); }
+.tools{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.tool{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; min-width:0; padding:9px 6px; text-align:center; line-height:1.15; border-radius:14px; border:2px solid transparent; background:var(--chip); font-size:14px; font-weight:700; transition:all .12s ease; }
+.tool span:first-child{ font-size:22px; line-height:1; }
+.tool span{ max-width:100%; overflow-wrap:anywhere; }
+.tool[aria-pressed="true"]{ border-color:var(--spruce); background:var(--panel); box-shadow:0 3px 12px rgba(30,122,70,.18); transform:translateY(-1px); }
 .sect{ margin-top:14px; }
-.lbl{ font-size:13px; color:var(--muted); margin-bottom:6px; display:flex; justify-content:space-between; }
-.palette{ display:grid; grid-template-columns:repeat(5,1fr); gap:6px; }
-.sw{ aspect-ratio:1; border-radius:50%; border:2px solid var(--line); padding:0; }
-.sw[aria-pressed="true"]{ outline:3px solid var(--ink); outline-offset:2px; }
+.lbl{ font-size:13px; color:var(--muted); margin-bottom:6px; display:flex; justify-content:space-between; align-items:center; }
+.palette{ display:grid; grid-template-columns:repeat(5,1fr); gap:8px; }
+.sw{ aspect-ratio:1; min-height:36px; border-radius:50%; border:2px solid var(--line); padding:0; transition:transform .12s ease, outline-offset .12s ease; }
+.sw[aria-pressed="true"]{ outline:3px solid var(--ink); outline-offset:3px; transform:scale(1.12); z-index:2; }
 .custom{ position:relative; overflow:hidden; background:conic-gradient(#e33,#ec3,#3c6,#3ae,#83e,#e33); }
 .custom input{ position:absolute; inset:0; opacity:0; cursor:pointer; }
-.stamps{ display:grid; grid-template-columns:repeat(5,1fr); gap:6px; }
-.st{ height:38px; border-radius:10px; border:2px solid transparent; background:var(--chip); font-size:20px; }
-.st[aria-pressed="true"]{ border-color:var(--spruce); }
-.patterns{ display:grid; grid-template-columns:repeat(5,1fr); gap:6px; }
-.pat{ height:38px; border-radius:10px; border:2px solid var(--line); background:var(--panel); padding:3px; display:flex; align-items:center; justify-content:center; overflow:hidden; }
-.pat canvas{ width:100%; height:100%; border-radius:6px; display:block; }
-.pat[aria-pressed="true"]{ border-color:var(--spruce); box-shadow:0 0 0 1px var(--spruce); }
+.stamps{ display:grid; grid-template-columns:repeat(5,1fr); gap:8px; }
+.st{ height:42px; border-radius:12px; border:2px solid transparent; background:var(--chip); font-size:22px; transition:all .12s ease; }
+.st[aria-pressed="true"]{ border-color:var(--spruce); background:var(--panel); box-shadow:0 2px 8px rgba(30,122,70,.2); transform:scale(1.08); }
+.patterns{ display:grid; grid-template-columns:repeat(5,1fr); gap:8px; }
+.pat{ height:42px; border-radius:12px; border:2px solid var(--line); background:var(--panel); padding:3px; display:flex; align-items:center; justify-content:center; overflow:hidden; transition:all .12s ease; }
+.pat canvas{ width:100%; height:100%; border-radius:8px; display:block; }
+.pat[aria-pressed="true"]{ border-color:var(--spruce); box-shadow:0 0 0 2px var(--spruce); transform:scale(1.08); }
 input[type=range]{ width:100%; accent-color:var(--spruce); }
+#sizeOut{ display:inline-flex; align-items:center; justify-content:center; min-width:24px; height:24px; padding:0 6px; border-radius:999px; background:var(--spruce); color:#fff; font-size:12px; font-weight:700; }
 input[type=text]{ width:100%; padding:8px 10px; border-radius:10px; border:2px solid var(--line); background:var(--bg); }
-.actions{ display:grid; gap:6px; }
-.act{ padding:9px 10px; border-radius:12px; border:0; background:var(--chip); text-align:left; font-weight:500; }
-.actions .row .act{ padding:9px 6px; font-size:14px; text-align:center; white-space:nowrap; }
+.actions{ display:grid; gap:8px; }
+.act{ padding:11px 10px; border-radius:14px; border:0; background:var(--chip); text-align:left; font-weight:700; font-size:14px; transition:all .12s ease; }
+.actions .row .act{ padding:10px 6px; font-size:13px; text-align:center; white-space:nowrap; }
+.act:hover:not(:disabled){ transform:translateY(-1px); filter:brightness(0.97); }
+.act:active:not(:disabled){ transform:scale(0.98); }
 .act:disabled{ opacity:.45; cursor:default; }
 .act.danger{ color:var(--red); }
 .row{ display:grid; grid-template-columns:1fr 1fr; gap:6px; }
@@ -139,15 +144,15 @@ input[type=text]{ width:100%; padding:8px 10px; border-radius:10px; border:2px s
 <body>
 <div class="app">
   <header>
-    <h1><span class="flake">❄&#xFE0E;</span> <span data-i18n="appTitle">Бумажная мастерская</span></h1>
+    <h1><span class="flake">✂️</span> <span data-i18n="appTitle">Бумажная мастерская</span> <span class="flake">★</span></h1>
     <div class="hdr-right">
       <div class="tabs lang" role="group" aria-label="Language / Язык">
         <button class="tab" id="langRu" aria-pressed="true">RU</button>
         <button class="tab" id="langEn" aria-pressed="false">EN</button>
       </div>
       <div class="tabs" role="tablist">
-        <button class="tab" role="tab" id="tabShape" aria-selected="true" data-i18n="tabShape">Фигурка</button>
-        <button class="tab" role="tab" id="tabBuild" aria-selected="false" data-i18n="tabBuild">Конструктор</button>
+        <button class="tab" role="tab" id="tabShape" aria-selected="true" data-i18n="tabShape">🧸 Фигурка</button>
+        <button class="tab" role="tab" id="tabBuild" aria-selected="false" data-i18n="tabBuild">🧱 Конструктор</button>
       </div>
       <div class="save">
         <span class="note" id="saveStatus" style="margin:0" data-i18n="saveIdle">Работа сохраняется сама</span>
@@ -218,11 +223,17 @@ input[type=text]{ width:100%; padding:8px 10px; border-radius:10px; border:2px s
       </div>
       <div class="sect actions">
         <div class="row">
-          <button class="act" id="undo" disabled data-i18n="undo">↩️ Отменить</button>
-          <button class="act" id="redo" disabled data-i18n="redo">↪️ Вернуть</button>
+          <button class="act" id="undo" disabled data-i18n="undo">↩️ Назад</button>
+          <button class="act" id="redo" disabled data-i18n="redo">↪️ Вперёд</button>
         </div>
-        <button class="act" id="fillAll" data-i18n="fillAll">🎨 Покрасить целиком</button>
-        <button class="act" id="clear" data-i18n="clearPaint">🗑️ Стереть краску</button>
+        <div class="row">
+          <button class="act" id="fillFace" disabled data-i18n="fillFace">🎨 Залить сторону</button>
+          <button class="act" id="clearFace" disabled data-i18n="clearFace">🧽 Стереть сторону</button>
+        </div>
+        <div class="row">
+          <button class="act" id="fillAll" data-i18n="fillAll">✨ Залить всё</button>
+          <button class="act danger" id="clear" data-i18n="clearPaint">🗑️ Стереть всё</button>
+        </div>
       </div>
     </section>
 
@@ -523,24 +534,25 @@ const PRIMS = [
 ];
 const I18N = {
   ru:{
-    appTitle:'Бумажная мастерская', tabShape:'Фигурка', tabBuild:'Конструктор',
+    appTitle:'Бумажная мастерская', tabShape:'🧸 Фигурка', tabBuild:'🧱 Конструктор',
     saveIdle:'Работа сохраняется сама', saveOk:'Сохранено', saveWarn:'Не сохранилось: слишком много деталей для браузера. Скачай файл.', saveBlocked:'Браузер не даёт сохранять автоматически (например, приватный режим). Скачай файл.',
     dlFile:'💾 Скачать файл', openFile:'📂 Открыть файл', modelsAria:'Фигуры', addsAria:'Детали',
-    addLeadTitle:'Добавить деталь', addLeadSub:'появится в центре сцены', toolsTitle:'Чем работаем',
-    toolMove:'Двигать детали', moveTitle:'Переместить (G)', toolRot:'Поворот', rotTitle:'Поворот (R)',
-    toolScale:'Масштаб', scaleTitle:'Масштаб (S)', toolBrush:'Кисть', toolFill:'Заливка',
-    toolStamp:'Штамп', toolEraser:'Ластик', toolOrbit:'Только крутить',
+    addLeadTitle:'Добавить деталь', addLeadSub:'появится в центре сцены', toolsTitle:'Инструменты',
+    toolMove:'Двигать', moveTitle:'Переместить (G)', toolRot:'Поворот', rotTitle:'Поворот (R)',
+    toolScale:'Размер', scaleTitle:'Масштаб (S)', toolBrush:'Кисточка', toolFill:'Ведёрко',
+    toolStamp:'Наклейки', toolEraser:'Ластик', toolOrbit:'Покрутить',
     selectedPart:'Выбрана деталь', partNameAria:'Название детали', width:'Ширина', height:'Высота', depth:'Глубина',
     elev:'Поднять / опустить', elevAria:'Высота над полом', rot15:'Повернуть на 15°',
     rotY:'↻ вокруг', rotX:'↕ вперёд', rotZ:'↔ набок', dup:'Копия', mirror:'Зеркальная копия',
     delPart:'🗑️ Удалить деталь', copySuf:' копия', mirrorSuf:' (зерк.)',
-    color:'Цвет', colorSwatch:'Цвет ', customColor:'Свой цвет', stamps:'Штампы', patterns:'Узор заливки',
+    color:'Цвет', colorSwatch:'Цвет ', customColor:'Свой цвет', stamps:'Выбери наклейку', patterns:'Узор для ведёрка',
     patNames:{solid:'Сплошная',dots:'Горошек',stripes:'Полоски',diag:'Диагональ',checker:'Шахматка',grid:'Клетка',zigzag:'Зигзаг',waves:'Волны',stars:'Звёздочки',hearts:'Сердечки'},
-    brushSize:'Толщина', brushSizeAria:'Толщина кисти', undo:'↩️ Отменить', redo:'↪️ Вернуть',
-    fillAll:'🎨 Покрасить целиком', clearPaint:'🗑️ Стереть краску',
+    brushSize:'Толщина кисточки', brushSizeAria:'Толщина кисточки', undo:'↩️ Назад', redo:'↪️ Вперёд',
+    fillFace:'🎨 Залить сторону', clearFace:'🧽 Стереть сторону', pickSide:'Сначала нажми на сторону фигурки',
+    fillAll:'✨ Залить всё', clearPaint:'🗑️ Стереть всё',
     zoomIn:'Приблизить', zoomOut:'Отдалить', resetView:'Вернуть вид',
-    hintShape:'Рисуй прямо на фигуре. Чтобы повернуть, тяни по пустому месту.',
-    hintBuild:'Выбери деталь — тяни стрелки (G), кольца (R) или масштаб (S). Крутить сцену — по пустому месту.',
+    hintShape:'🎨 Рисуй прямо на фигурке! А по пустому месту — крути 3D.',
+    hintBuild:'Выбирай деталь, двигай стрелочками и раскрашивай! Крути 3D по пустому месту.',
     sheetTitle:'Лист для печати', pageAria:'Развёртка на листе А4. На ней тоже можно рисовать.',
     pageNote:'На развёртке тоже можно рисовать — удобно для мелких деталей.',
     shapeScale:'Размер', shapeScaleAria:'Размер на листе', partsTitle:'Детали фигурки',
@@ -560,24 +572,25 @@ const I18N = {
     bear:['Туловище','Голова','Мордочка','Ухо левое','Ухо правое','Лапа левая','Лапа правая','Нога левая','Нога правая','Животик']
   },
   en:{
-    appTitle:'Paper Workshop', tabShape:'Shapes', tabBuild:'Builder',
+    appTitle:'Paper Workshop', tabShape:'🧸 Shape', tabBuild:'🧱 Builder',
     saveIdle:'Auto-saved locally', saveOk:'Saved', saveWarn:'Not saved: too many parts for browser storage. Download the file.', saveBlocked:'This browser blocks auto-save (e.g. private mode). Download the file.',
     dlFile:'💾 Save file', openFile:'📂 Open file', modelsAria:'Shapes', addsAria:'Parts',
     addLeadTitle:'Add a part', addLeadSub:'appears at scene center', toolsTitle:'Tools',
-    toolMove:'Move parts', moveTitle:'Move (G)', toolRot:'Rotate', rotTitle:'Rotate (R)',
-    toolScale:'Scale', scaleTitle:'Scale (S)', toolBrush:'Brush', toolFill:'Fill',
-    toolStamp:'Stamp', toolEraser:'Eraser', toolOrbit:'Orbit camera',
+    toolMove:'Move', moveTitle:'Move (G)', toolRot:'Rotate', rotTitle:'Rotate (R)',
+    toolScale:'Scale', scaleTitle:'Scale (S)', toolBrush:'Brush', toolFill:'Fill Bucket',
+    toolStamp:'Stickers', toolEraser:'Eraser', toolOrbit:'Turn 3D',
     selectedPart:'Selected part', partNameAria:'Part name', width:'Width', height:'Height', depth:'Depth',
     elev:'Raise / lower', elevAria:'Height above floor', rot15:'Rotate by 15°',
     rotY:'↻ yaw', rotX:'↕ pitch', rotZ:'↔ roll', dup:'Duplicate', mirror:'Mirror copy',
     delPart:'🗑️ Delete part', copySuf:' copy', mirrorSuf:' (mirror)',
-    color:'Color', colorSwatch:'Color ', customColor:'Custom color', stamps:'Stamps', patterns:'Fill pattern',
+    color:'Color', colorSwatch:'Color ', customColor:'Custom color', stamps:'Choose sticker', patterns:'Fill pattern',
     patNames:{solid:'Solid',dots:'Polka dots',stripes:'Stripes',diag:'Diagonal',checker:'Checker',grid:'Grid',zigzag:'Zigzag',waves:'Waves',stars:'Stars',hearts:'Hearts'},
-    brushSize:'Size', brushSizeAria:'Brush size', undo:'↩️ Undo', redo:'↪️ Redo',
-    fillAll:'🎨 Paint all', clearPaint:'🗑️ Clear paint',
+    brushSize:'Brush size', brushSizeAria:'Brush size', undo:'↩️ Undo', redo:'↪️ Redo',
+    fillFace:'🎨 Fill side', clearFace:'🧽 Clear side', pickSide:'Tap a side of the shape first',
+    fillAll:'✨ Paint all', clearPaint:'🗑️ Clear all',
     zoomIn:'Zoom in', zoomOut:'Zoom out', resetView:'Reset view',
-    hintShape:'Draw directly on the 3D shape. Drag empty space to orbit.',
-    hintBuild:'Select a part — drag arrows (G), rings (R), or scale handles (S). Drag empty space to orbit.',
+    hintShape:'🎨 Draw right on the 3D shape! Drag empty space to turn.',
+    hintBuild:'Select a part, drag arrows and paint! Drag empty space to turn.',
     sheetTitle:'Printable sheet', pageAria:'A4 net preview. You can draw directly on it too.',
     pageNote:'You can also draw on the flat net — handy for fine details.',
     shapeScale:'Size', shapeScaleAria:'Size on sheet', partsTitle:'Model parts',
@@ -608,7 +621,7 @@ const STAMPS = ['❄\uFE0E','★','♥','✦','●','🎄','⛄','🎁','🦌','
 const PATTERNS = ['solid','dots','stripes','diag','checker','grid','zigzag','waves','stars','hearts'];
 
 let mode='shape'; // 'shape' | 'build'
-let tool='brush', color='#d62f2f', sizeVal=4, stamp=STAMPS[0], fillPat='solid', sizePct=1;
+let tool='brush', color='#d62f2f', sizeVal=4, stamp=STAMPS[0], fillPat='solid', sizePct=1, lastFace=null;
 let cur=null; const cache=new Map();
 let parts=[], selected=null, partSeq=0, targetHeightCm=14;
 const undoStack=[], redoStack=[];
@@ -708,7 +721,7 @@ function addPart(type, opts={}){
 }
 function removePart(part){ disposeGroup(part.group); bworld.remove(part.group); part.faces=null; parts=parts.filter(p=>p!==part); pruneUndo(p=>p!==part); if(selected===part) select(null); renderPartList(); recenter(); netDirty=true; saveSoon(); }
 function setSelectedLook(part,on){ if(part.lines){ part.lines.material.color.set(on?0xe2ad35:0x2a3340); part.lines.material.opacity=on?1:0.5; } }
-function select(part){ pyStart=null; sizeStart=null; if(selected) setSelectedLook(selected,false); selected=part; if(part) setSelectedLook(part,true); updateGizmo(); renderPartCtl(); document.querySelectorAll('.part').forEach(b=>b.setAttribute('aria-pressed', !!selected && +b.dataset.id===selected.id)); }
+function select(part){ pyStart=null; sizeStart=null; if(selected) setSelectedLook(selected,false); selected=part; if(part){ setSelectedLook(part,true); if(!lastFace||lastFace.part!==part) setLastFace(null); } updateGizmo(); renderPartCtl(); document.querySelectorAll('.part').forEach(b=>b.setAttribute('aria-pressed', !!selected && +b.dataset.id===selected.id)); }
 function modelBounds(){
   let lo=[1e9,1e9,1e9], hi=[-1e9,-1e9,-1e9]; const v=new THREE.Vector3();
   parts.forEach(p=>p.P.verts.forEach(q=>{ v.set(q[0],q[1],q[2]).applyEuler(p.group.rotation).add(p.group.position); lo=[Math.min(lo[0],v.x),Math.min(lo[1],v.y),Math.min(lo[2],v.z)]; hi=[Math.max(hi[0],v.x),Math.max(hi[1],v.y),Math.max(hi[2],v.z)]; }));
@@ -904,6 +917,7 @@ function floodFill(part,fi,x0,y0,spec){
   const nextTile=next.id==='solid'?null:getPatternTile(next.spec);
   const base=parseFillSpec(F.base), baseTile=base.id==='solid'?null:getPatternTile(base.spec);
   const useBaseTile=Boolean(baseTile && pxMatches(d,i0,x0,y0,null,baseTile));
+  const onBase=useBaseTile || (!baseTile && pxMatches(d,i0,x0,y0,parseHex(base.col),null));
   if(useBaseTile && next.spec===base.spec) return;
   if(!nextTile && !useBaseTile && Math.abs(nextRgb[0]-sr)<=2 && Math.abs(nextRgb[1]-sg)<=2 && Math.abs(nextRgb[2]-sb)<=2) return;
   const seedRgb=[sr,sg,sb], matchBase=useBaseTile?baseTile:null;
@@ -927,7 +941,7 @@ function floodFill(part,fi,x0,y0,spec){
   if(!filled) return;
   touch(part,fi);
   F.ctx.putImageData(img,0,0);
-  if(filled===W*H) F.base=next.spec;
+  if(onBase) F.base=next.spec;
   changed(part,fi);
 }
 function fillAt(h,spec){
@@ -1016,6 +1030,29 @@ function updateUndo(){
   const has=st=>st.some(m=>[...m.keys()].some(isActivePart));
   $('undo').disabled=!has(undoStack);
   $('redo').disabled=!has(redoStack);
+  updateFaceBtns();
+}
+function getTargetFace(){
+  if(lastFace && lastFace.part && lastFace.part.faces && lastFace.part.faces[lastFace.fi] && isActivePart(lastFace.part)){
+    return lastFace;
+  }
+  return null; // no side picked yet: the buttons stay disabled
+}
+function setLastFace(v){ lastFace=v; updateFaceBtns(); }
+function updateFaceBtns(){
+  const off=!getTargetFace();
+  ['fillFace','clearFace'].forEach(id=>{ const b=$(id); b.disabled=off; b.title=off?t('pickSide'):''; });
+}
+function clearActiveFace(){
+  const target=getTargetFace(); if(!target) return;
+  const p=target.part, fi=target.fi, F=p.faces[fi];
+  beginStroke(); touch(p,fi);
+  F.ctx.fillStyle='#ffffff'; F.ctx.fillRect(0,0,F.W,F.H); F.base='#ffffff';
+  changed(p,fi); endStroke();
+}
+function fillActiveFace(spec){
+  const target=getTargetFace(); if(!target) return;
+  beginStroke(); replaceBase(target.part,target.fi,spec); endStroke();
 }
 function fillAll(col){ const list = mode==='shape' ? [cur] : (selected?[selected]:parts); beginStroke(); list.forEach(p=>p.faces.forEach((_,i)=>replaceBase(p,i,col))); endStroke(); }
 function clearAll(){ const list = mode==='shape' ? [cur] : (selected?[selected]:parts); beginStroke(); list.forEach(p=>p.faces.forEach((_,i)=>{ const F=p.faces[i]; touch(p,i); F.ctx.fillStyle='#ffffff'; F.ctx.fillRect(0,0,F.W,F.H); F.base='#ffffff'; changed(p,i); })); endStroke(); }
@@ -1095,6 +1132,7 @@ cvs.addEventListener('pointerdown',e=>{
   }
   const h= tool==='rotate' ? null : hit3D(e);
   if(!h){ drag={mode:'rotate',x:e.clientX,y:e.clientY}; cvs.style.cursor='grabbing'; return; }
+  setLastFace({part:h.part, fi:h.fi});
   if(isBuildTool(tool)){
     select(h.part);
     if(tool==='move'){
@@ -1311,6 +1349,7 @@ function hitPage(e){
 let pdrag=null;
 pageCv.addEventListener('pointerdown',e=>{
   if(tool==='rotate'||tool==='move') return; const h=hitPage(e); if(!h) return;
+  setLastFace({part:cur, fi:h.fi});
   pageCv.setPointerCapture(e.pointerId); beginStroke(); applyTool(h);
   if(continuous()) pdrag={last:h}; else endStroke();
 });
@@ -1490,6 +1529,8 @@ $('scale').oninput=e=>{ sizePct=e.target.value/100; netDirty=true; updateDim(); 
 $('name').oninput=()=>{ netDirty=true; saveSoon(); };
 $('undo').onclick=doUndo;
 $('redo').onclick=doRedo;
+$('fillFace').onclick=()=>fillActiveFace(tool==='fill'?currentFillSpec():color);
+$('clearFace').onclick=clearActiveFace;
 $('fillAll').onclick=()=>fillAll(tool==='fill'?currentFillSpec():color);
 $('clear').onclick=clearAll;
 function applyLang(){
@@ -1506,7 +1547,7 @@ function applyLang(){
   pal.querySelectorAll('.sw:not(.custom)').forEach((b,i)=>{ if(COLORS[i]) b.setAttribute('aria-label',t('colorSwatch')+COLORS[i]); });
   patEl.querySelectorAll('.pat').forEach(b=>{ const nm=t('patNames')[b.dataset.pat]; if(nm){ b.title=nm; b.setAttribute('aria-label',nm); } });
   cust.title=t('customColor'); if(custIn.setAttribute) custIn.setAttribute('aria-label',t('customColor'));
-  updateModeText(); renderPartCtl(); updateDim(); netDirty=true;
+  updateModeText(); renderPartCtl(); updateDim(); updateFaceBtns(); netDirty=true;
 }
 function setLang(l,persist=true){
   lang=l==='en'?'en':'ru';

@@ -20,7 +20,8 @@ Zero build step — runs from a single [`index.html`](index.html) file using van
   - **`Delete` / `Backspace`**: remove the selected part.
 - **3D & flat-net painting**:
   - Paint directly on the 3D surface or onto the A4 unfolded net (`Shapes` mode).
-  - Brush (`1–10`), non-overwriting flood fill (`🪣`) with procedural pattern support (10 patterns: solid, dots, stripes, diagonal, checkerboard, grid, zigzag, waves, stars, hearts), stamp tool (`⭐`), eraser (`🧽`), paint-all preserving drawings (`🎨`), and custom color picker.
+  - Kid-friendly UI with cheerful tools: Brush (`1–10`), Fill Bucket (`🪣`) with 10 procedural patterns (solid, dots, stripes, diagonal, checkerboard, grid, zigzag, waves, stars, hearts) replacing surfaces cleanly without layering, Stickers (`⭐`), and Eraser (`🧽`).
+  - Single-side actions (`🎨 Fill side`, `🧽 Clear side`) alongside whole-model actions (`✨ Paint all`, `🗑️ Clear all`).
 - **Undo / Redo history**:
   - Full Undo/Redo (`Ctrl+Z` / `Cmd+Z`, `Ctrl+Shift+Z` / `Cmd+Shift+Z` or `Ctrl+Y`) for painting strokes as well as moves, rotations, and scaling.
 - **Print & save**:
@@ -47,4 +48,4 @@ Then visit `http://localhost:8000/` (Russian) or `http://localhost:8000/en/` (En
 
 ## О проекте (RU)
 
-**Бумажная мастерская** — однофайловое 3D веб-приложение для создания бумажных фигурок: можно раскрашивать готовые модели прямо в 3D или на развёртке, заливать грани цветом или узорами (10 процедурных паттернов: сплошная, горошек, полоски, диагональ, шахматка, клетка, зигзаг, волны, звёздочки, сердечки), собирать игрушки из деталей в режиме конструктора с инструментами перемещения (`G`), поворота (`R`) и масштаба (`S`) как в Blender, отменять и возвращать действия (`Ctrl+Z` / `Ctrl+Shift+Z`), сохранять проекты в `.paper.json` и печатать готовые листы А4 с линиями сгиба и клапанами для склейки.
+**Бумажная мастерская** — однофайловое 3D веб-приложение для создания бумажных фигурок с дружелюбным для детей интерфейсом: можно раскрашивать готовые модели прямо в 3D или на развёртке, заливать отдельные стороны или всю фигурку цветом и узорами (10 процедурных паттернов без наложения слоёв: сплошная, горошек, полоски, диагональ, шахматка, клетка, зигзаг, волны, звёздочки, сердечки), стирать краску с конкретной стороны (`🧽 Стереть сторону`), собирать игрушки из деталей в режиме конструктора с инструментами перемещения (`G`), поворота (`R`) и масштаба (`S`) как в Blender, отменять и возвращать действия (`Ctrl+Z` / `Ctrl+Shift+Z`), сохранять проекты в `.paper.json` и печатать готовые листы А4 с линиями сгиба и клапанами для склейки.
