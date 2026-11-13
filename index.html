@@ -81,6 +81,10 @@ h1 .flake{ color:var(--red); }
 .stamps{ display:grid; grid-template-columns:repeat(5,1fr); gap:6px; }
 .st{ height:38px; border-radius:10px; border:2px solid transparent; background:var(--chip); font-size:20px; }
 .st[aria-pressed="true"]{ border-color:var(--spruce); }
+.patterns{ display:grid; grid-template-columns:repeat(5,1fr); gap:6px; }
+.pat{ height:38px; border-radius:10px; border:2px solid var(--line); background:var(--panel); padding:3px; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+.pat canvas{ width:100%; height:100%; border-radius:6px; display:block; }
+.pat[aria-pressed="true"]{ border-color:var(--spruce); box-shadow:0 0 0 1px var(--spruce); }
 input[type=range]{ width:100%; accent-color:var(--spruce); }
 input[type=text]{ width:100%; padding:8px 10px; border-radius:10px; border:2px solid var(--line); background:var(--bg); }
 .actions{ display:grid; gap:6px; }
@@ -203,6 +207,10 @@ input[type=text]{ width:100%; padding:8px 10px; border-radius:10px; border:2px s
       <div class="sect" id="stampSect" hidden>
         <div class="lbl" data-i18n="stamps">Штампы</div>
         <div class="stamps" id="stamps"></div>
+      </div>
+      <div class="sect" id="patSect" hidden>
+        <div class="lbl" data-i18n="patterns">Узор заливки</div>
+        <div class="patterns" id="patterns"></div>
       </div>
       <div class="sect">
         <div class="lbl"><span data-i18n="brushSize">Толщина</span><span id="sizeOut">4</span></div>
@@ -526,7 +534,8 @@ const I18N = {
     elev:'Поднять / опустить', elevAria:'Высота над полом', rot15:'Повернуть на 15°',
     rotY:'↻ вокруг', rotX:'↕ вперёд', rotZ:'↔ набок', dup:'Копия', mirror:'Зеркальная копия',
     delPart:'🗑️ Удалить деталь', copySuf:' копия', mirrorSuf:' (зерк.)',
-    color:'Цвет', colorSwatch:'Цвет ', customColor:'Свой цвет', stamps:'Штампы',
+    color:'Цвет', colorSwatch:'Цвет ', customColor:'Свой цвет', stamps:'Штампы', patterns:'Узор заливки',
+    patNames:{solid:'Сплошная',dots:'Горошек',stripes:'Полоски',diag:'Диагональ',checker:'Шахматка',grid:'Клетка',zigzag:'Зигзаг',waves:'Волны',stars:'Звёздочки',hearts:'Сердечки'},
     brushSize:'Толщина', brushSizeAria:'Толщина кисти', undo:'↩️ Отменить', redo:'↪️ Вернуть',
     fillAll:'🎨 Покрасить целиком', clearPaint:'🗑️ Стереть краску',
     zoomIn:'Приблизить', zoomOut:'Отдалить', resetView:'Вернуть вид',
@@ -562,7 +571,8 @@ const I18N = {
     elev:'Raise / lower', elevAria:'Height above floor', rot15:'Rotate by 15°',
     rotY:'↻ yaw', rotX:'↕ pitch', rotZ:'↔ roll', dup:'Duplicate', mirror:'Mirror copy',
     delPart:'🗑️ Delete part', copySuf:' copy', mirrorSuf:' (mirror)',
-    color:'Color', colorSwatch:'Color ', customColor:'Custom color', stamps:'Stamps',
+    color:'Color', colorSwatch:'Color ', customColor:'Custom color', stamps:'Stamps', patterns:'Fill pattern',
+    patNames:{solid:'Solid',dots:'Polka dots',stripes:'Stripes',diag:'Diagonal',checker:'Checker',grid:'Grid',zigzag:'Zigzag',waves:'Waves',stars:'Stars',hearts:'Hearts'},
     brushSize:'Size', brushSizeAria:'Brush size', undo:'↩️ Undo', redo:'↪️ Redo',
     fillAll:'🎨 Paint all', clearPaint:'🗑️ Clear paint',
     zoomIn:'Zoom in', zoomOut:'Zoom out', resetView:'Reset view',
@@ -595,9 +605,10 @@ const tName=v=>typeof v==='string'?v:v[lang];
 let saveStatusKey='saveIdle';
 const COLORS = ['#ffffff','#1f2024','#d62f2f','#f08a24','#f6d03c','#7cc35a','#1e7a46','#5bb6e8','#2557c6','#7a4bc4','#f17fb5','#8a5a3b','#d4a72c','#b8bec7'];
 const STAMPS = ['❄\uFE0E','★','♥','✦','●','🎄','⛄','🎁','🦌','🍬','😊','🐱','⭐','🔔','🍊'];
+const PATTERNS = ['solid','dots','stripes','diag','checker','grid','zigzag','waves','stars','hearts'];
 
 let mode='shape'; // 'shape' | 'build'
-let tool='brush', color='#d62f2f', sizeVal=4, stamp=STAMPS[0], sizePct=1;
+let tool='brush', color='#d62f2f', sizeVal=4, stamp=STAMPS[0], fillPat='solid', sizePct=1;
 let cur=null; const cache=new Map();
 let parts=[], selected=null, partSeq=0, targetHeightCm=14;
 const undoStack=[], redoStack=[];
@@ -786,64 +797,161 @@ function strokeTo(a,b){
   const d=G.len(G.sub(b.p,a.p)), n=Math.max(1,Math.ceil(d/(rUnits()*0.35)));
   for(let i=1;i<=n;i++){ const t=i/n; dab(b.part,[a.p[0]+(b.p[0]-a.p[0])*t, a.p[1]+(b.p[1]-a.p[1])*t, a.p[2]+(b.p[2]-a.p[2])*t]); }
 }
-const FILL_TOL2=45*45;
+const FILL_TOL2=45*45, PAT_SIZE=48;
 function parseHex(hex){
   let h=String(hex||'').replace('#','');
   if(h.length===3) h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
   const n=parseInt(h,16);
   return Number.isFinite(n)?[(n>>16)&255,(n>>8)&255,n&255]:[255,255,255];
 }
-function floodFill(part,fi,x0,y0,col){
+function normHex(rgb){
+  return '#'+rgb.map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0')).join('');
+}
+function parseFillSpec(spec){
+  const s=String(spec||'#ffffff');
+  if(s.startsWith('pat:')){
+    const parts=s.split(':');
+    const id=PATTERNS.includes(parts[1])&&parts[1]!=='solid'?parts[1]:'solid';
+    const col=normHex(parseHex(parts[2]));
+    return id==='solid'?{id:'solid',col,spec:col}:{id,col,spec:'pat:'+id+':'+col};
+  }
+  const col=normHex(parseHex(s));
+  return {id:'solid',col,spec:col};
+}
+const currentFillSpec=()=>fillPat==='solid'?color:'pat:'+fillPat+':'+normHex(parseHex(color));
+function starSDF(u,v,cx,cy,r1,r2){
+  let dx=u-cx, dy=v-cy; dx-=(dx>0.5?1:dx<-0.5?-1:0); dy-=(dy>0.5?1:dy<-0.5?-1:0);
+  const r=Math.hypot(dx,dy), a=Math.atan2(dx,-dy), sec=Math.PI*2/5;
+  const ma=Math.abs((((a%sec)+sec+sec/2)%sec)-sec/2);
+  const px=r*Math.cos(ma), py=r*Math.sin(ma);
+  const bx=r2*Math.cos(sec/2), by=r2*Math.sin(sec/2), ex=bx-r1, ey=by, el=Math.hypot(ex,ey);
+  return ((px-r1)*ey-py*ex)/el;
+}
+function heartSDF(u,v){
+  const x=Math.abs((u-0.5)/0.56), y=(0.84-v)/0.68, d2=(ax,ay)=>ax*ax+ay*ay;
+  if(y+x>1) return (Math.sqrt(d2(x-0.25,y-0.75))-Math.SQRT2/4)*0.6;
+  return Math.sqrt(Math.min(d2(x,y-1),d2(x-0.5*Math.max(x+y,0),y-0.5*Math.max(x+y,0))))*Math.sign(x-y)*0.6;
+}
+function patCov(id,u,v,aa){
+  const sm=(e,x)=>Math.max(0,Math.min(1,0.5+(e-x)/aa));
+  if(id==='solid') return 1;
+  if(id==='dots'){
+    const dist=(cx,cy)=>{ let dx=Math.abs(u-cx), dy=Math.abs(v-cy); if(dx>0.5) dx=1-dx; if(dy>0.5) dy=1-dy; return Math.hypot(dx,dy); };
+    return Math.max(sm(0.155,dist(0.25,0.25)), sm(0.155,dist(0.75,0.75)));
+  }
+  if(id==='stripes') return sm(0.24, Math.abs(((u*2)%1)-0.5));
+  if(id==='diag') return sm(0.23, Math.abs(((u*2+v*2)%1)-0.5));
+  if(id==='checker') return ((u<0.5)!==(v<0.5))?1:0;
+  if(id==='grid') return Math.max(sm(0.085,Math.min(u,1-u)), sm(0.085,Math.min(v,1-v)));
+  if(id==='zigzag'){
+    const y0=Math.abs(((u*2)%1)-0.5)*2, t=(((v*2-y0*0.5)%1)+1)%1;
+    return sm(0.21, Math.abs(t-0.5));
+  }
+  if(id==='waves'){
+    const y0=0.22*Math.cos(u*Math.PI*4), t=(((v*2+y0)%1)+1)%1;
+    return sm(0.20, Math.abs(t-0.5));
+  }
+  if(id==='stars') return Math.max(sm(0,starSDF(u,v,0.26,0.28,0.22,0.095)), sm(0,starSDF(u,v,0.74,0.72,0.22,0.095)));
+  if(id==='hearts') return sm(0,heartSDF(u,v));
+  return 1;
+}
+const tileCache=new Map();
+function getPatternTile(spec,size=PAT_SIZE){
+  const p=parseFillSpec(spec), key=p.spec+'@'+size;
+  if(tileCache.has(key)) return tileCache.get(key);
+  const fg=parseHex(p.col), lum=0.299*fg[0]+0.587*fg[1]+0.114*fg[2];
+  const bg=lum>235?[200,211,223]:[255,255,255];
+  const data=new Uint8ClampedArray(size*size*4), aa=1.4/size;
+  for(let y=0;y<size;y++){
+    const v=(y+0.5)/size;
+    for(let x=0;x<size;x++){
+      const c=patCov(p.id,(x+0.5)/size,v,aa), k=(y*size+x)*4;
+      data[k]=Math.round(bg[0]+(fg[0]-bg[0])*c);
+      data[k+1]=Math.round(bg[1]+(fg[1]-bg[1])*c);
+      data[k+2]=Math.round(bg[2]+(fg[2]-bg[2])*c);
+      data[k+3]=255;
+    }
+  }
+  const tile={tw:size,th:size,data,spec:p.spec,isSolid:p.id==='solid',rgb:fg};
+  if(size===PAT_SIZE && tileCache.size>64) tileCache.clear();
+  tileCache.set(key,tile);
+  return tile;
+}
+function writeFillPx(d,j,x,y,nextRgb,nextTile){
+  if(nextTile){
+    const k=((y%nextTile.th)*nextTile.tw+(x%nextTile.tw))*4;
+    d[j]=nextTile.data[k]; d[j+1]=nextTile.data[k+1]; d[j+2]=nextTile.data[k+2]; d[j+3]=255;
+  } else {
+    d[j]=nextRgb[0]; d[j+1]=nextRgb[1]; d[j+2]=nextRgb[2]; d[j+3]=255;
+  }
+}
+function pxMatches(d,j,x,y,baseRgb,baseTile){
+  let tr,tg,tb;
+  if(baseTile){
+    const k=((y%baseTile.th)*baseTile.tw+(x%baseTile.tw))*4;
+    tr=baseTile.data[k]; tg=baseTile.data[k+1]; tb=baseTile.data[k+2];
+  } else {
+    tr=baseRgb[0]; tg=baseRgb[1]; tb=baseRgb[2];
+  }
+  const dr=d[j]-tr, dg=d[j+1]-tg, db=d[j+2]-tb;
+  return dr*dr+dg*dg+db*db<=FILL_TOL2;
+}
+function floodFill(part,fi,x0,y0,spec){
   const F=part.faces[fi], W=F.W, H=F.H;
   const img=F.ctx.getImageData(0,0,W,H), d=img.data;
   const i0=(y0*W+x0)*4, sr=d[i0], sg=d[i0+1], sb=d[i0+2];
-  const [fr,fg,fb]=parseHex(col);
-  if(Math.abs(fr-sr)<=2 && Math.abs(fg-sg)<=2 && Math.abs(fb-sb)<=2) return;
+  const next=parseFillSpec(spec), nextRgb=parseHex(next.col);
+  const nextTile=next.id==='solid'?null:getPatternTile(next.spec);
+  const base=parseFillSpec(F.base), baseTile=base.id==='solid'?null:getPatternTile(base.spec);
+  const useBaseTile=Boolean(baseTile && pxMatches(d,i0,x0,y0,null,baseTile));
+  if(useBaseTile && next.spec===base.spec) return;
+  if(!nextTile && !useBaseTile && Math.abs(nextRgb[0]-sr)<=2 && Math.abs(nextRgb[1]-sg)<=2 && Math.abs(nextRgb[2]-sb)<=2) return;
+  const seedRgb=[sr,sg,sb], matchBase=useBaseTile?baseTile:null;
   const vis=new Uint8Array(W*H);
-  const match=idx=>{
-    if(vis[idx]) return false;
-    const j=idx*4, dr=d[j]-sr, dg=d[j+1]-sg, db=d[j+2]-sb;
-    return dr*dr+dg*dg+db*db<=FILL_TOL2;
-  };
+  const match=(cx,cy)=>{ const idx=cy*W+cx; return !vis[idx] && pxMatches(d,idx*4,cx,cy,seedRgb,matchBase); };
   const stack=[x0,y0];
   let filled=0;
   while(stack.length){
     const y=stack.pop(), x=stack.pop();
-    if(!match(y*W+x)) continue;
-    let lx=x; while(lx>0 && match(y*W+lx-1)) lx--;
-    let rx=x; while(rx<W-1 && match(y*W+rx+1)) rx++;
+    if(!match(x,y)) continue;
+    let lx=x; while(lx>0 && match(lx-1,y)) lx--;
+    let rx=x; while(rx<W-1 && match(rx+1,y)) rx++;
     let up=false, dn=false;
     for(let cx=lx;cx<=rx;cx++){
-      const idx=y*W+cx, j=idx*4;
-      vis[idx]=1; d[j]=fr; d[j+1]=fg; d[j+2]=fb; d[j+3]=255; filled++;
-      if(y>0){ const m=match((y-1)*W+cx); if(!up&&m){ stack.push(cx,y-1); up=true; } else if(up&&!m) up=false; }
-      if(y<H-1){ const m=match((y+1)*W+cx); if(!dn&&m){ stack.push(cx,y+1); dn=true; } else if(dn&&!m) dn=false; }
+      const idx=y*W+cx;
+      vis[idx]=1; writeFillPx(d,idx*4,cx,y,nextRgb,nextTile); filled++;
+      if(y>0){ const m=match(cx,y-1); if(!up&&m){ stack.push(cx,y-1); up=true; } else if(up&&!m) up=false; }
+      if(y<H-1){ const m=match(cx,y+1); if(!dn&&m){ stack.push(cx,y+1); dn=true; } else if(dn&&!m) dn=false; }
     }
   }
   if(!filled) return;
   touch(part,fi);
   F.ctx.putImageData(img,0,0);
-  if(filled===W*H) F.base=col;
+  if(filled===W*H) F.base=next.spec;
   changed(part,fi);
 }
-function fillAt(h,col){
+function fillAt(h,spec){
   const part=h.part, f=part.P.faces[h.fi], F=part.faces[h.fi], d=G.sub(h.p,f.o);
   const [fx,fy]=toPx(F,[G.dot(d,f.u),G.dot(d,f.w)]);
   if(!Number.isFinite(fx)||!Number.isFinite(fy)) return;
-  floodFill(part,h.fi,Math.max(0,Math.min(F.W-1,Math.round(fx))),Math.max(0,Math.min(F.H-1,Math.round(fy))),col);
+  floodFill(part,h.fi,Math.max(0,Math.min(F.W-1,Math.round(fx))),Math.max(0,Math.min(F.H-1,Math.round(fy))),spec);
 }
-function replaceBase(part,fi,col){
+function replaceBase(part,fi,spec){
   const F=part.faces[fi], W=F.W, H=F.H;
-  const [sr,sg,sb]=parseHex(F.base), [fr,fg,fb]=parseHex(col);
-  if(Math.abs(fr-sr)<=2 && Math.abs(fg-sg)<=2 && Math.abs(fb-sb)<=2) return;
+  const next=parseFillSpec(spec), base=parseFillSpec(F.base);
+  if(next.spec===base.spec) return;
+  const nextRgb=parseHex(next.col), baseRgb=parseHex(base.col);
+  const nextTile=next.id==='solid'?null:getPatternTile(next.spec);
+  const baseTile=base.id==='solid'?null:getPatternTile(base.spec);
+  if(!nextTile && !baseTile && Math.abs(nextRgb[0]-baseRgb[0])<=2 && Math.abs(nextRgb[1]-baseRgb[1])<=2 && Math.abs(nextRgb[2]-baseRgb[2])<=2) return;
   const img=F.ctx.getImageData(0,0,W,H), d=img.data;
   let hit=false;
-  for(let j=0;j<d.length;j+=4){
-    const dr=d[j]-sr, dg=d[j+1]-sg, db=d[j+2]-sb;
-    if(dr*dr+dg*dg+db*db<=FILL_TOL2){ d[j]=fr; d[j+1]=fg; d[j+2]=fb; d[j+3]=255; hit=true; }
+  for(let y=0;y<H;y++) for(let x=0;x<W;x++){
+    const j=(y*W+x)*4;
+    if(pxMatches(d,j,x,y,baseRgb,baseTile)){ writeFillPx(d,j,x,y,nextRgb,nextTile); hit=true; }
   }
   if(!hit) return;
-  touch(part,fi); F.ctx.putImageData(img,0,0); F.base=col; changed(part,fi);
+  touch(part,fi); F.ctx.putImageData(img,0,0); F.base=next.spec; changed(part,fi);
 }
 function stampAt(h){
   const part=h.part, f=part.P.faces[h.fi], F=part.faces[h.fi], d=G.sub(h.p,f.o), [x,y]=toPx(F,[G.dot(d,f.u),G.dot(d,f.w)]);
@@ -854,7 +962,7 @@ function stampAt(h){
 }
 function applyTool(h){
   if(tool==='brush'||tool==='eraser') dab(h.part,h.p);
-  else if(tool==='fill') fillAt(h,color);
+  else if(tool==='fill') fillAt(h,currentFillSpec());
   else if(tool==='stamp') stampAt(h);
 }
 const continuous=()=>tool==='brush'||tool==='eraser';
@@ -1347,10 +1455,16 @@ function renderShelves(){
 document.querySelectorAll('.tool').forEach(b=>b.onclick=()=>{
   if(drag){ commitDrag(); drag=null; }
   tool=b.dataset.tool; document.querySelectorAll('.tool').forEach(x=>x.setAttribute('aria-pressed',x===b));
-  $('stampSect').hidden = tool!=='stamp'; highlightGizmo(null); updateGizmo();
+  $('stampSect').hidden = tool!=='stamp'; $('patSect').hidden = tool!=='fill'; highlightGizmo(null); updateGizmo();
 });
-const pal=$('palette');
-function selectColor(c,btn){ color=c; pal.querySelectorAll('.sw').forEach(x=>x.setAttribute('aria-pressed',x===btn)); if(tool==='eraser'||tool==='rotate'||isBuildTool(tool)){ document.querySelector('[data-tool=brush]').click(); } }
+const pal=$('palette'), patEl=$('patterns');
+function drawPatBtn(id,cv){
+  const tile=getPatternTile(id==='solid'?color:'pat:'+id+':'+normHex(parseHex(color)),cv.width), ctx=cv.getContext('2d');
+  if(!ctx||!ctx.putImageData) return;
+  const img=ctx.createImageData(tile.tw,tile.th); img.data.set(tile.data); ctx.putImageData(img,0,0);
+}
+function renderPatterns(){ patEl.querySelectorAll('.pat').forEach((b,i)=>{ if(PATTERNS[i]) drawPatBtn(PATTERNS[i],b.firstChild); }); }
+function selectColor(c,btn){ color=c; pal.querySelectorAll('.sw').forEach(x=>x.setAttribute('aria-pressed',x===btn)); renderPatterns(); if(tool==='eraser'||tool==='rotate'||isBuildTool(tool)){ document.querySelector('[data-tool=brush]').click(); } }
 COLORS.forEach(c=>{
   const b=document.createElement('button'); b.className='sw'; b.style.background=c; b.setAttribute('aria-label',t('colorSwatch')+c);
   b.setAttribute('aria-pressed', c===color); b.onclick=()=>selectColor(c,b); pal.appendChild(b);
@@ -1361,6 +1475,13 @@ const custIn=cust.querySelector('input');
 custIn.addEventListener('input',e=>{ selectColor(e.target.value,null); cust.style.outline='3px solid var(--ink)'; });
 pal.addEventListener('click',e=>{ if(e.target.closest('.sw:not(.custom)')) cust.style.outline=''; });
 pal.appendChild(cust);
+PATTERNS.forEach(p=>{
+  const b=document.createElement('button'); b.className='pat'; b.dataset.pat=p; b.setAttribute('aria-pressed',p===fillPat);
+  const cv=document.createElement('canvas'); cv.width=32; cv.height=32; b.appendChild(cv);
+  b.onclick=()=>{ fillPat=p; patEl.querySelectorAll('.pat').forEach(x=>x.setAttribute('aria-pressed',x===b)); };
+  patEl.appendChild(b);
+});
+renderPatterns();
 const stEl=$('stamps');
 STAMPS.forEach(s=>{ const b=document.createElement('button'); b.className='st'; b.textContent=s; b.setAttribute('aria-pressed',s===stamp);
   b.onclick=()=>{ stamp=s; stEl.querySelectorAll('.st').forEach(x=>x.setAttribute('aria-pressed',x===b)); }; stEl.appendChild(b); });
@@ -1369,7 +1490,7 @@ $('scale').oninput=e=>{ sizePct=e.target.value/100; netDirty=true; updateDim(); 
 $('name').oninput=()=>{ netDirty=true; saveSoon(); };
 $('undo').onclick=doUndo;
 $('redo').onclick=doRedo;
-$('fillAll').onclick=()=>fillAll(color);
+$('fillAll').onclick=()=>fillAll(tool==='fill'?currentFillSpec():color);
 $('clear').onclick=clearAll;
 function applyLang(){
   if(typeof document!=='undefined'&&document.documentElement) document.documentElement.lang=lang;
@@ -1383,6 +1504,7 @@ function applyLang(){
   $('saveStatus').textContent=t(saveStatusKey);
   renderShelves();
   pal.querySelectorAll('.sw:not(.custom)').forEach((b,i)=>{ if(COLORS[i]) b.setAttribute('aria-label',t('colorSwatch')+COLORS[i]); });
+  patEl.querySelectorAll('.pat').forEach(b=>{ const nm=t('patNames')[b.dataset.pat]; if(nm){ b.title=nm; b.setAttribute('aria-label',nm); } });
   cust.title=t('customColor'); if(custIn.setAttribute) custIn.setAttribute('aria-label',t('customColor'));
   updateModeText(); renderPartCtl(); updateDim(); netDirty=true;
 }
